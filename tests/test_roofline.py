@@ -74,6 +74,21 @@ class TestHWDatabase:
         spec = lookup("rtx 4090")
         assert spec is not None
 
+    def test_alias_lookup_raspberry_pi5(self):
+        spec = lookup("pi5")
+        assert spec is not None
+        assert spec.name == "Raspberry Pi 5"
+
+    def test_alias_lookup_raspberry_pi4(self):
+        spec = lookup("pi4")
+        assert spec is not None
+        assert spec.name == "Raspberry Pi 4"
+
+    def test_alias_lookup_arduino_nicla(self):
+        spec = lookup("nicla")
+        assert spec is not None
+        assert spec.name == "Arduino Nicla Vision"
+
     def test_lookup_unknown_returns_none(self):
         assert lookup("nonexistent_gpu_xyz") is None
 

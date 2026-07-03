@@ -164,6 +164,7 @@ class LayerStats:
             "arithmetic_intensity": round(self.arithmetic_intensity, 4),
             "ridge_point": round(self.ridge_point, 2),
             "attainable_perf_tflops": round(self.attainable_perf / 1e12, 4),
+            "efficiency_pct": round(self.efficiency_pct(), 2),
             "bottleneck": self.bottleneck,
             "theoretical_time_ms": round(self.theoretical_time_ms, 6),
             "hw": self.hw_name,

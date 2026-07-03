@@ -266,3 +266,124 @@ class RooflinePlot:
             plt.show()
 
         return fig, ax
+
+
+def plot_multiple(
+    results_list,
+    figsize=(13, 7),
+    save_path: Optional[str] = None,
+    show: bool = True,
+    log_scale: bool = True,
+):
+    """Draw multiple roofline curves on the same axes for comparison."""
+    if not results_list:
+        raise ValueError("results_list must contain at least one AnalysisResults object")
+
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError as e:
+        raise ImportError("matplotlib is required: pip install matplotlib") from e
+
+    first_dtype = results_list[0].dtype
+    first_mode = results_list[0].mode
+    for result in results_list:
+        if result.dtype != first_dtype:
+            raise ValueError("All results must use the same dtype for a combined roofline plot")
+        if result.mode != first_mode:
+            raise ValueError("All results must use the same mode (inference/training) for a combined plot")
+
+    all_ai = [max(layer.arithmetic_intensity, 1e-3)
+              for result in results_list for layer in result.layers]
+    ai_min = min(all_ai) if all_ai else 1e-2
+    ai_min = min(ai_min, 1e-2)
+    all_ridges = [result.hw.ridge_point(first_dtype) for result in results_list]
+    ai_max = max(max(all_ridges) * 10, max(all_ai) * 10 if all_ai else 1e4, 1e4)
+
+    x_curve = np.logspace(np.log10(ai_min), np.log10(ai_max), 500)
+    fig, ax = plt.subplots(figsize=figsize)
+    cmap = plt.get_cmap("tab10")
+    markers = ["o", "s", "^", "D", "P", "X"]
+
+    for idx, result in enumerate(results_list):
+        hw = result.hw
+        color = cmap(idx % 10)
+        peak_flops = hw._get_peak_flops(first_dtype)
+        peak_bw = hw.peak_mem_bw
+        ridge = hw.ridge_point(first_dtype)
+
+        y_curve = np.minimum(x_curve * peak_bw, peak_flops)
+        ax.plot(
+            x_curve,
+            y_curve,
+            color=color,
+            linewidth=2.3,
+            label=f"{hw.name}",
+            zorder=5,
+        )
+        ax.axvline(
+            x=ridge,
+            color=color,
+            linestyle="--",
+            linewidth=1.2,
+            alpha=0.8,
+            zorder=4,
+        )
+        ax.scatter(
+            [ridge],
+            [peak_flops],
+            marker=markers[idx % len(markers)],
+            color=color,
+            edgecolors="black",
+            s=120,
+            zorder=10,
+            label=f"{hw.name} peak",
+        )
+        ax.text(
+            ridge * 1.08,
+            peak_flops * 0.92,
+            f"{hw.name}",
+            color=color,
+            fontsize=9,
+            weight="bold",
+            zorder=12,
+        )
+
+        known_layers = [l for l in result.layers if l.layer.layer_type != "Unknown" and l.flops > 0]
+        if known_layers:
+            ai_vals = [max(l.arithmetic_intensity, 1e-3) for l in known_layers]
+            perf_vals = [max(l.attainable_perf, 1.0) for l in known_layers]
+            ax.scatter(
+                ai_vals,
+                perf_vals,
+                c=color,
+                marker=markers[idx % len(markers)],
+                s=40,
+                alpha=0.5,
+                edgecolors="white",
+                linewidths=0.7,
+                zorder=11,
+                label=f"{hw.name} layers",
+            )
+
+    if log_scale:
+        ax.set_xscale("log")
+        ax.set_yscale("log")
+
+    ax.set_xlabel("Arithmetic Intensity  (FLOPs / Byte)", fontsize=12)
+    ax.set_ylabel("Attainable Performance  (FLOPs / s)", fontsize=12)
+    ax.set_title(
+        f"Roofline Comparison — {first_dtype} | {first_mode}",
+        fontsize=14,
+    )
+    ax.yaxis.set_major_formatter(
+        plt.FuncFormatter(lambda v, _: f"{v/1e12:.0f}T" if v >= 1e12 else f"{v/1e9:.0f}G" if v >= 1e9 else f"{v:.0e}")
+    )
+    ax.legend(loc="upper left", fontsize=8, framealpha=0.85, ncol=1)
+    ax.grid(True, which="both", linestyle="--", alpha=0.35)
+    plt.tight_layout()
+
+    if save_path:
+        fig.savefig(save_path, dpi=300)
+    if show:
+        plt.show()
+    return fig

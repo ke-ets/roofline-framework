@@ -338,6 +338,54 @@ _APPLE_M5_ULTRA = _apple(
     ("m5 ultra", "m5ultra", "apple m5 ultra"),
 )
 
+# Raspberry Pi 4
+_RASPBERRY_PI4 = HWSpec(
+    name="Raspberry Pi 4",
+    vendor="broadcom",
+    architecture="ARM Cortex-A72",
+    peak_flops={
+        "float32": 48.0e9,
+        "float16": 96.0e9,
+    },
+    peak_mem_bw=25.6e9,      # ≈ 25.6 GB/s LPDDR4
+    memory_capacity_gb=8,
+    memory_type="LPDDR4",
+    tdp_watts=10,
+    aliases=("pi4", "raspberry pi 4", "raspberry_pi4", "raspberrypi4", "bcm2711"),
+)
+
+# Raspberry Pi 5
+_RASPBERRY_PI5 = HWSpec(
+    name="Raspberry Pi 5",
+    vendor="broadcom",
+    architecture="ARM Cortex-A76",
+    peak_flops={
+        "float32": 38.4e9,
+        "float16": 76.8e9,
+    },
+    peak_mem_bw=51.2e9,      # ≈ 51.2 GB/s LPDDR5
+    memory_capacity_gb=16,
+    memory_type="LPDDR5",
+    tdp_watts=12,
+    aliases=("pi5", "raspberry pi 5", "raspberry_pi5", "raspberrypi5", "bcm2712"),
+)
+
+# Arduino Nicla Vision
+_ARDUINO_NICLA = HWSpec(
+    name="Arduino Nicla Vision",
+    vendor="arduino",
+    architecture="ARM Cortex-M7",
+    peak_flops={
+        "float32": 1.92e9,
+        "float16": 3.84e9,
+    },
+    peak_mem_bw=15.36e9,     # ≈ 15.36 GB/s dual-port SRAM
+    memory_capacity_gb=0.002,
+    memory_type="SRAM",
+    tdp_watts=1.5,
+    aliases=("nicla", "arduino nicla", "arduino_nicla", "nicla_vision", "stm32h747"),
+)
+
 # ---------------------------------------------------------------------------
 # Registry — maps key → HWSpec
 # ---------------------------------------------------------------------------
@@ -379,6 +427,9 @@ HW_DB: Dict[str, HWSpec] = {
     "m5_pro": _APPLE_M5_PRO,
     "m5_max": _APPLE_M5_MAX,
     "m5_ultra": _APPLE_M5_ULTRA,
+    "raspberry_pi4": _RASPBERRY_PI4,
+    "raspberry_pi5": _RASPBERRY_PI5,
+    "arduino_nicla": _ARDUINO_NICLA,
 }
 
 # Build a flat alias lookup for the fuzzy matcher in hw_resolver
