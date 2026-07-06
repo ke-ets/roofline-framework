@@ -33,9 +33,9 @@ _TYPE_COLORS = {
     "GELU": "#DA8BC3",
     "SiLU": "#DA8BC3",
     "Activation": "#DA8BC3",
-    "MaxPool": "#8C8C8C",
-    "AvgPool": "#8C8C8C",
-    "AdaptiveAvgPool": "#8C8C8C",
+    "MaxPool": "#3A86FF",
+    "AvgPool": "#06D6A0",
+    "AdaptiveAvgPool": "#06D6A0",
     "Elementwise": "#CCB974",
     "Reshape": "#64B5CD",
     "Dropout": "#AAAAAA",
@@ -268,6 +268,200 @@ class RooflinePlot:
         return fig, ax
 
 
+def plot_model_across_hw(
+    model_name: str,
+    results_list,
+    figsize=(14, 8),
+    save_path: Optional[str] = None,
+    show: bool = True,
+    annotate_top_n: int = 8,
+    log_scale: bool = True,
+):
+    """Draw one roofline figure for a single model across multiple hardware targets.
+
+    All hardware roofline curves are overlaid on the same axes together with
+    per-layer scatter points.  Because arithmetic intensity is hardware-independent,
+    every layer lands at the same X position on all curves; only its Y (attainable
+    performance) differs, making the cross-hardware comparison immediately visible.
+
+    Parameters
+    ----------
+    model_name:
+        Display name used in the plot title.
+    results_list:
+        List of ``AnalysisResults``, one per hardware target (same order as
+        the HW_TARGETS list used to produce them).
+    annotate_top_n:
+        Annotate the N highest-FLOPs layers with their type label.
+    """
+    if not results_list:
+        raise ValueError("results_list must contain at least one AnalysisResults object")
+
+    try:
+        import matplotlib.pyplot as plt
+        import matplotlib.lines as mlines
+        import matplotlib.patches as mpatches
+    except ImportError as e:
+        raise ImportError("matplotlib is required: pip install matplotlib") from e
+
+    first_dtype = results_list[0].dtype
+    first_mode = results_list[0].mode
+
+    # Global AI range
+    all_ai = [max(layer.arithmetic_intensity, 1e-3)
+              for result in results_list for layer in result.layers]
+    ai_min = min(min(all_ai) if all_ai else 1e-2, 1e-2)
+    all_ridges = [r.hw.ridge_point(first_dtype) for r in results_list]
+    ai_max = max(max(all_ridges) * 10, max(all_ai) * 10 if all_ai else 1e4, 1e4)
+
+    x_curve = np.logspace(np.log10(ai_min), np.log10(ai_max), 500)
+    fig, ax = plt.subplots(figsize=figsize)
+    cmap = plt.get_cmap("tab10")
+    hw_markers = ["o", "s", "^", "D", "P", "X"]
+
+    # Use FLOPs from first result (hardware-independent)
+    ref_layers = [l for l in results_list[0].layers
+                  if l.layer.layer_type != "Unknown" and l.flops > 0]
+    top_layers_idx = sorted(range(len(ref_layers)),
+                            key=lambda i: ref_layers[i].flops, reverse=True)[:annotate_top_n]
+
+    for idx, result in enumerate(results_list):
+        hw = result.hw
+        hw_color = cmap(idx % 10)
+        marker = hw_markers[idx % len(hw_markers)]
+        peak_flops = hw._get_peak_flops(first_dtype)
+        peak_bw = hw.peak_mem_bw
+        ridge = hw.ridge_point(first_dtype)
+
+        y_curve = np.minimum(x_curve * peak_bw, peak_flops)
+        ax.plot(x_curve, y_curve, color=hw_color, linewidth=2.2,
+                label=hw.name, zorder=5)
+        ax.axvline(x=ridge, color=hw_color, linestyle="--", linewidth=1.0,
+                   alpha=0.7, zorder=4)
+        ax.scatter([ridge], [peak_flops], marker=marker, color=hw_color,
+                   edgecolors="black", s=110, zorder=10)
+
+        known = [l for l in result.layers
+                 if l.layer.layer_type != "Unknown" and l.flops > 0]
+        if known:
+            ai_vals   = [max(l.arithmetic_intensity, 1e-3) for l in known]
+            perf_vals = [max(l.attainable_perf, 1.0) for l in known]
+            # Color each dot by its layer type so the "Layer types in AI" legend
+            # is live.  Marker shape encodes which HW target the dot belongs to.
+            dot_colors = [_TYPE_COLORS.get(l.layer.layer_type, _DEFAULT_COLOR)
+                          for l in known]
+            ax.scatter(ai_vals, perf_vals, c=dot_colors, marker=marker,
+                       s=45, alpha=0.75, edgecolors=hw_color,
+                       linewidths=1.0, zorder=11)
+
+    # Annotate one representative per unique layer type (highest FLOPs for that type).
+    # Using the highest-performing HW result for Y positions so labels sit at the
+    # most visible (tallest) scatter points.
+    best_result = max(results_list,
+                      key=lambda r: r.hw._get_peak_flops(first_dtype))
+    best_known = [l for l in best_result.layers
+                  if l.layer.layer_type != "Unknown" and l.flops > 0]
+
+    # Build {layer_type: best LayerStats by FLOPs}
+    type_rep: dict = {}
+    for ls in best_known:
+        lt = ls.layer.layer_type
+        if lt not in type_rep or ls.flops > type_rep[lt].flops:
+            type_rep[lt] = ls
+
+    # Sort by FLOPs descending so the most important types are prioritised
+    # if the plot gets crowded; cap at annotate_top_n distinct types
+    sorted_types = sorted(type_rep.values(), key=lambda l: l.flops, reverse=True)
+    to_annotate = sorted_types[:annotate_top_n] if annotate_top_n > 0 else sorted_types
+
+    # Spread text offsets to reduce overlap: alternate above/below the point
+    offset_factors = [
+        (1.7, 1.6), (1.7, 0.45), (0.35, 1.6), (0.35, 0.45),
+        (1.7, 2.5), (0.15, 2.5), (2.5, 1.0), (0.15, 0.25),
+    ]
+    for rank, layer_stat in enumerate(to_annotate):
+        ai = max(layer_stat.arithmetic_intensity, 1e-3)
+        perf = max(layer_stat.attainable_perf, 1.0)
+        ox, oy = offset_factors[rank % len(offset_factors)]
+        ax.annotate(
+            layer_stat.layer.layer_type,
+            xy=(ai, perf),
+            xytext=(ai * ox, perf * oy),
+            fontsize=7.5,
+            color="#333333",
+            arrowprops=dict(arrowstyle="-", color="#aaaaaa", lw=0.8),
+            bbox=dict(boxstyle="round,pad=0.25", facecolor="white",
+                      edgecolor="#cccccc", alpha=0.88),
+            zorder=20,
+        )
+
+    if log_scale:
+        ax.set_xscale("log")
+        ax.set_yscale("log")
+
+    ax.set_xlabel("Arithmetic Intensity  (FLOPs / Byte)", fontsize=12)
+    ax.set_ylabel("Attainable Performance  (FLOPs / s)", fontsize=12)
+    ax.set_title(
+        f"{model_name} — Roofline across Hardware Targets\n"
+        f"{first_dtype} | {first_mode} | {len(results_list[0].layers)} layers",
+        fontsize=13,
+    )
+    ax.yaxis.set_major_formatter(
+        plt.FuncFormatter(lambda v, _: f"{v/1e12:.0f}T" if v >= 1e12
+                          else f"{v/1e9:.0f}G" if v >= 1e9 else f"{v:.0e}")
+    )
+
+    # Legend 1 (upper-left): HW roofline curves — color = HW, shape = HW
+    hw_handles = []
+    for idx, result in enumerate(results_list):
+        color = cmap(idx % 10)
+        marker = hw_markers[idx % len(hw_markers)]
+        hw_handles.append(
+            mlines.Line2D([], [], color=color, marker=marker, markersize=7,
+                          linewidth=2.0, label=result.hw.name)
+        )
+    hw_legend = ax.legend(handles=hw_handles, loc="upper left", fontsize=9,
+                          framealpha=0.88,
+                          title="Hardware  (curve color + dot border + shape)")
+    ax.add_artist(hw_legend)   # keep it when adding the second legend
+
+    # Legend 2 (lower-right): all layer types present in the scatter,
+    # coloured with the global _TYPE_COLORS palette.
+    # Dot fill color = layer type, dot border color = HW.
+    all_layer_types = sorted({
+        l.layer.layer_type
+        for result in results_list
+        for l in result.layers
+        if l.layer.layer_type != "Unknown" and l.flops > 0
+    })
+    type_handles = [
+        mpatches.Patch(
+            color=_TYPE_COLORS.get(lt, _DEFAULT_COLOR),
+            label=lt,
+        )
+        for lt in all_layer_types
+    ]
+    if type_handles:
+        ax.legend(
+            handles=type_handles,
+            loc="lower right",
+            fontsize=8,
+            framealpha=0.88,
+            title="Layer types  (dot fill color)",
+            title_fontsize=8,
+            ncol=max(1, len(type_handles) // 6 + 1),
+        )
+    ax.grid(True, which="both", linestyle="--", alpha=0.35)
+    plt.tight_layout()
+
+    if save_path:
+        fig.savefig(save_path, dpi=200, bbox_inches="tight")
+        print(f"[roofline] Saved: {save_path}")
+    if show:
+        plt.show()
+    return fig
+
+
 def plot_multiple(
     results_list,
     figsize=(13, 7),
@@ -384,6 +578,170 @@ def plot_multiple(
 
     if save_path:
         fig.savefig(save_path, dpi=300)
+    if show:
+        plt.show()
+    return fig
+
+
+def plot_multi_model_multi_hw(
+    results_grid: dict,
+    figsize=(14, 9),
+    save_path: Optional[str] = None,
+    show: bool = True,
+    log_scale: bool = True,
+):
+    """Draw a unified roofline comparison across multiple models and hardware targets.
+
+    Uses **model-level aggregate metrics** (one dot per model-hardware pair) rather
+    than per-layer scatter, keeping the combined view clean and readable.
+
+    Each model forms a vertical cluster of same-shaped dots at its aggregate
+    arithmetic intensity (AI = total_flops / total_bytes, hardware-independent).
+    The 4 hardware-coloured dots in each cluster show how each hardware's roofline
+    ceiling clips the model's attainable performance differently.
+
+    Parameters
+    ----------
+    results_grid:
+        ``{model_name: List[AnalysisResults]}`` — one list per model, each list
+        containing one ``AnalysisResults`` per hardware target (same HW order for
+        every model).
+    """
+    if not results_grid:
+        raise ValueError("results_grid must not be empty")
+
+    try:
+        import matplotlib.pyplot as plt
+        import matplotlib.lines as mlines
+        import matplotlib.patches as mpatches
+    except ImportError as e:
+        raise ImportError("matplotlib is required: pip install matplotlib") from e
+
+    # Collect metadata from first model's first result
+    first_results_list = next(iter(results_grid.values()))
+    first_dtype = first_results_list[0].dtype
+    first_mode = first_results_list[0].mode
+    hw_list = [r.hw for r in first_results_list]
+    n_hw = len(hw_list)
+
+    cmap = plt.get_cmap("tab10")
+    hw_markers = ["o", "s", "^", "D", "P", "X"]
+    # One distinct marker per model
+    model_names = list(results_grid.keys())
+    model_markers = ["o", "s", "^", "D", "P", "X", "v", "<", ">", "h"]
+
+    # Compute aggregate AI and attainable perf per (model, hw)
+    agg = {}   # {model_name: [(ai, attainable_perf, total_flops), ...]} indexed by HW
+    all_ai_vals = []
+    for model_name, results_list in results_grid.items():
+        agg[model_name] = []
+        for result in results_list:
+            total_flops = sum(l.flops for l in result.layers)
+            total_bytes = sum(l.total_bytes for l in result.layers)
+            ai = total_flops / total_bytes if total_bytes > 0 else 0.0
+            attainable = result.hw.attainable_performance(ai, first_dtype)
+            agg[model_name].append((max(ai, 1e-3), attainable, total_flops))
+            all_ai_vals.append(max(ai, 1e-3))
+
+    # X range for roofline curves
+    all_ridges = [hw.ridge_point(first_dtype) for hw in hw_list]
+    ai_min = min(min(all_ai_vals) * 0.3, 1e-2)
+    ai_max = max(max(all_ridges) * 10, max(all_ai_vals) * 5, 1e4)
+    x_curve = np.logspace(np.log10(ai_min), np.log10(ai_max), 500)
+
+    fig, ax = plt.subplots(figsize=figsize)
+
+    # Draw one roofline curve per hardware
+    for hw_idx, hw in enumerate(hw_list):
+        color = cmap(hw_idx % 10)
+        peak_flops = hw._get_peak_flops(first_dtype)
+        peak_bw = hw.peak_mem_bw
+        ridge = hw.ridge_point(first_dtype)
+        y_curve = np.minimum(x_curve * peak_bw, peak_flops)
+        ax.plot(x_curve, y_curve, color=color, linewidth=2.2,
+                label=hw.name, zorder=5)
+        ax.axvline(x=ridge, color=color, linestyle="--", linewidth=0.9,
+                   alpha=0.65, zorder=4)
+
+    # Dot size scale: proportional to log(total_flops) of model (use first HW as ref)
+    ref_flops = [agg[m][0][2] for m in model_names]
+    max_log_flops = max(np.log1p(f) for f in ref_flops) if ref_flops else 1
+
+    # Draw aggregate dots
+    for m_idx, model_name in enumerate(model_names):
+        m_marker = model_markers[m_idx % len(model_markers)]
+        total_flops_ref = agg[model_name][0][2]
+        dot_size = max(120, 600 * (np.log1p(total_flops_ref) / max_log_flops) ** 1.5)
+
+        ai_positions = []
+        for hw_idx, (ai, attainable, _) in enumerate(agg[model_name]):
+            color = cmap(hw_idx % 10)
+            ax.scatter([ai], [attainable], marker=m_marker, c=[color],
+                       s=dot_size, edgecolors="white", linewidths=1.2,
+                       zorder=12, alpha=0.92)
+            ai_positions.append(ai)
+
+        # Annotate model name once, at the rightmost (highest AI) HW dot position
+        best_idx = int(np.argmax([a[0] for a in agg[model_name]]))
+        best_ai, best_perf, _ = agg[model_name][best_idx]
+        ax.annotate(
+            model_name,
+            xy=(best_ai, best_perf),
+            xytext=(best_ai * 1.15, best_perf * 1.35),
+            fontsize=9,
+            fontweight="bold",
+            color="#222222",
+            arrowprops=dict(arrowstyle="-", color="#bbbbbb", lw=0.9),
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
+                      edgecolor="#dddddd", alpha=0.9),
+            zorder=20,
+        )
+
+    if log_scale:
+        ax.set_xscale("log")
+        ax.set_yscale("log")
+
+    ax.set_xlabel("Arithmetic Intensity  (FLOPs / Byte)", fontsize=12)
+    ax.set_ylabel("Attainable Performance  (FLOPs / s)", fontsize=12)
+    ax.set_title(
+        f"Roofline — Model vs Hardware Comparison\n"
+        f"{first_dtype} | {first_mode}  "
+        f"(dots = model aggregate AI; size ∝ total FLOPs)",
+        fontsize=13,
+    )
+    ax.yaxis.set_major_formatter(
+        plt.FuncFormatter(lambda v, _: f"{v/1e12:.0f}T" if v >= 1e12
+                          else f"{v/1e9:.0f}G" if v >= 1e9 else f"{v:.0e}")
+    )
+
+    # Two-section legend: hardware (color) + model (shape)
+    hw_handles = [
+        mlines.Line2D([], [], color=cmap(i % 10), linewidth=2.2,
+                      label=hw.name)
+        for i, hw in enumerate(hw_list)
+    ]
+    model_handles = [
+        mlines.Line2D([], [], color="#555555",
+                      marker=model_markers[i % len(model_markers)],
+                      markersize=9, linestyle="None",
+                      label=name)
+        for i, name in enumerate(model_names)
+    ]
+    ax.legend(
+        handles=hw_handles + model_handles,
+        loc="upper left",
+        fontsize=8.5,
+        framealpha=0.88,
+        ncol=2,
+        title="Hardware (color)  |  Model (shape)",
+        title_fontsize=8,
+    )
+    ax.grid(True, which="both", linestyle="--", alpha=0.35)
+    plt.tight_layout()
+
+    if save_path:
+        fig.savefig(save_path, dpi=200, bbox_inches="tight")
+        print(f"[roofline] Saved: {save_path}")
     if show:
         plt.show()
     return fig
