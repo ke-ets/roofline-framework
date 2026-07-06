@@ -129,6 +129,68 @@ roofline info bert-base-uncased --source huggingface --input-shape 1,128
 
 ---
 
+## Examples
+
+### AlexNet — folder-based input across 4 hardware targets
+
+Analyses a locally-saved AlexNet model (directory of per-layer `.pt` weight files)
+against Raspberry Pi 4, Raspberry Pi 5, Apple M4, and Arduino Nicla Vision.
+
+**1. Edit the model folder path in the script:**
+
+```python
+# examples/alexnet_example.py
+MODEL_FOLDER = r"/path/to/base_alexnet_wb"   # directory with .pt weight files
+```
+
+**2. Run:**
+
+```bash
+python examples/alexnet_example.py
+```
+
+**What it produces:**
+- Console output — hardware specs, one-line summary, and a full layer-by-layer breakdown table for each hardware target
+- `alexnet_multi_hw_roofline.png` — all 4 HW roofline curves overlaid with the AlexNet layer scatter
+
+---
+
+### Multi-Model × Multi-Hardware
+
+Runs roofline analysis on **AlexNet, MobileNetV2, ResNet101, VGG16** across the same 4 hardware targets using live `torchvision` model objects (no pre-saved weights needed).
+
+**Prerequisites:**
+
+```bash
+pip install torchvision
+```
+
+**Run:**
+
+```bash
+python examples/multi_model_multi_hw.py
+```
+
+**What it produces:**
+
+| File | Contents |
+|---|---|
+| `alexnet_multi_hw_roofline.png` | AlexNet layers on all 4 HW — dot fill = layer type, dot border/shape = HW |
+| `mobilenetv2_multi_hw_roofline.png` | MobileNetV2 layers on all 4 HW |
+| `resnet101_multi_hw_roofline.png` | ResNet101 layers on all 4 HW |
+| `vgg16_multi_hw_roofline.png` | VGG16 layers on all 4 HW |
+| `multi_model_multi_hw_roofline.png` | Unified aggregate view — 1 dot per (model, HW) pair |
+
+**Per-model plots — dual-legend design:**
+- **Upper-left "Hardware"** legend — roofline curve color + dot border color + marker shape per HW
+- **Lower-right "Layer types"** legend — dot fill color per layer type (Conv2d, Linear, BatchNorm, ReLU, MaxPool, AdaptiveAvgPool, Dropout, …)
+
+**Unified aggregate plot — what to read:**
+- Each model forms a **vertical cluster of 4 same-shaped dots** at the model's overall arithmetic intensity (AI = total FLOPs / total bytes — hardware-independent)
+- The 4 hardware-coloured dots in each cluster show how each hardware's roofline ceiling clips attainable performance; a dot sitting on the flat part of a curve is compute-bound, a dot on the rising slope is memory-bound
+
+---
+
 ## Roofline Model
 
 For each layer and hardware target:
