@@ -64,6 +64,7 @@ class RooflinePlot:
         show: bool = True,
         annotate_top_n: int = 5,
         log_scale: bool = True,
+        model_name: Optional[str] = None,
     ):
         """Draw the roofline plot.
 
@@ -224,8 +225,9 @@ class RooflinePlot:
 
         ax.set_xlabel("Arithmetic Intensity  (FLOPs / Byte)", fontsize=12)
         ax.set_ylabel("Attainable Performance  (FLOPs / s)", fontsize=12)
+        title_prefix = f"{model_name} — " if model_name else ""
         ax.set_title(
-            f"Roofline Model — {hw.name}\n"
+            f"{title_prefix}Roofline Model — {hw.name}\n"
             f"{dtype} | {self.results.mode} mode | {len(layers)} layers",
             fontsize=13,
         )
@@ -734,6 +736,162 @@ def plot_multi_model_multi_hw(
         framealpha=0.88,
         ncol=2,
         title="Hardware (color)  |  Model (shape)",
+        title_fontsize=8,
+    )
+    ax.grid(True, which="both", linestyle="--", alpha=0.35)
+    plt.tight_layout()
+
+    if save_path:
+        fig.savefig(save_path, dpi=200, bbox_inches="tight")
+        print(f"[roofline] Saved: {save_path}")
+    if show:
+        plt.show()
+    return fig
+
+
+def plot_models_on_hw(
+    results_dict: dict,
+    figsize=(13, 8),
+    save_path: Optional[str] = None,
+    show: bool = True,
+    log_scale: bool = True,
+):
+    """Draw a single-hardware roofline with one aggregate dot per model.
+
+    Useful when the hardware is auto-detected (single target) and you want to
+    compare how multiple models sit relative to each other and the hardware
+    roofline ceiling, without per-layer clutter.
+
+    Each dot represents the model as a whole:
+    - X = total_flops / total_bytes  (model-level arithmetic intensity)
+    - Y = attainable_performance(AI, dtype)
+    - Dot size  ∝ log(total_flops)
+    - Dot color = unique per model (tab10)
+    - Label     = model name + total FLOPs
+
+    Parameters
+    ----------
+    results_dict:
+        ``{model_name: AnalysisResults}`` — all results must share the same
+        hardware target (as produced when running ``analyze()`` for one HW).
+    """
+    if not results_dict:
+        raise ValueError("results_dict must not be empty")
+
+    try:
+        import matplotlib.pyplot as plt
+        import matplotlib.lines as mlines
+    except ImportError as e:
+        raise ImportError("matplotlib is required: pip install matplotlib") from e
+
+    # Pull HW / dtype / mode from the first result
+    first = next(iter(results_dict.values()))
+    hw    = first.hw
+    dtype = first.dtype
+    mode  = first.mode
+
+    peak_flops = hw._get_peak_flops(dtype)
+    peak_bw    = hw.peak_mem_bw
+    ridge      = hw.ridge_point(dtype)
+
+    # Compute aggregate (AI, attainable_perf, total_flops) per model
+    agg = {}
+    for model_name, results in results_dict.items():
+        total_flops = sum(l.flops for l in results.layers)
+        total_bytes = sum(l.total_bytes for l in results.layers)
+        ai = total_flops / total_bytes if total_bytes > 0 else 0.0
+        attainable = hw.attainable_performance(ai, dtype)
+        agg[model_name] = (max(ai, 1e-3), attainable, total_flops)
+
+    all_ai = [v[0] for v in agg.values()]
+    ai_min = min(min(all_ai) * 0.3, 1e-2)
+    ai_max = max(ridge * 10, max(all_ai) * 5, 1e4)
+    x_curve = np.logspace(np.log10(ai_min), np.log10(ai_max), 500)
+    y_curve = np.minimum(x_curve * peak_bw, peak_flops)
+
+    fig, ax = plt.subplots(figsize=figsize)
+    cmap = plt.get_cmap("tab10")
+
+    # Roofline curve
+    ax.plot(x_curve, y_curve, color="black", linewidth=2.5,
+            label="Roofline", zorder=5)
+    ax.axvline(x=ridge, color="black", linestyle="--", linewidth=1.2,
+               alpha=0.6, label=f"Ridge = {ridge:.1f} FLOPs/B", zorder=4)
+
+    # Memory-bound / Compute-bound region labels
+    ax.text(
+        ridge * 0.28, peak_flops * 0.55,
+        "Memory\nBound", ha="center", va="center",
+        fontsize=10, color="#555555",
+        bbox=dict(boxstyle="round,pad=0.3", facecolor="lightyellow", alpha=0.75),
+    )
+    ax.text(
+        ridge * 3.5, peak_flops * 0.75,
+        "Compute\nBound", ha="center", va="center",
+        fontsize=10, color="#555555",
+        bbox=dict(boxstyle="round,pad=0.3", facecolor="lightcyan", alpha=0.75),
+    )
+
+    # Dot size scale
+    all_flops = [v[2] for v in agg.values()]
+    max_log_f = max(np.log1p(f) for f in all_flops) if all_flops else 1
+
+    model_names = list(results_dict.keys())
+    handles = []
+
+    for m_idx, model_name in enumerate(model_names):
+        ai, attainable, total_flops = agg[model_name]
+        color = cmap(m_idx % 10)
+        dot_size = max(150, 700 * (np.log1p(total_flops) / max_log_f) ** 1.5)
+
+        ax.scatter([ai], [attainable], c=[color], s=dot_size,
+                   edgecolors="white", linewidths=1.5, zorder=12, alpha=0.92)
+
+        flops_str = (f"{total_flops/1e9:.1f}G" if total_flops >= 1e9
+                     else f"{total_flops/1e6:.1f}M")
+        ax.annotate(
+            f"{model_name}\n({flops_str} FLOPs)",
+            xy=(ai, attainable),
+            xytext=(ai * 1.35, attainable * 1.45),
+            fontsize=8.5,
+            color="#222222",
+            arrowprops=dict(arrowstyle="-", color="#bbbbbb", lw=0.9),
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
+                      edgecolor="#dddddd", alpha=0.92),
+            zorder=20,
+        )
+
+        handles.append(
+            mlines.Line2D([], [], color=color, marker="o", markersize=9,
+                          linestyle="None", label=f"{model_name}  ({flops_str})")
+        )
+
+    if log_scale:
+        ax.set_xscale("log")
+        ax.set_yscale("log")
+
+    ax.set_xlabel("Arithmetic Intensity  (FLOPs / Byte)", fontsize=12)
+    ax.set_ylabel("Attainable Performance  (FLOPs / s)", fontsize=12)
+    ax.set_title(
+        f"All Models on {hw.name}\n"
+        f"{dtype} | {mode}  (dot size \u221d total FLOPs)",
+        fontsize=13,
+    )
+    ax.yaxis.set_major_formatter(
+        plt.FuncFormatter(lambda v, _: f"{v/1e12:.0f}T" if v >= 1e12
+                          else f"{v/1e9:.0f}G" if v >= 1e9 else f"{v:.0e}")
+    )
+
+    roofline_handle = mlines.Line2D([], [], color="black", linewidth=2.5,
+                                    label="Roofline")
+    ridge_handle = mlines.Line2D([], [], color="black", linestyle="--",
+                                 linewidth=1.2, label=f"Ridge ({ridge:.1f})")
+    ax.legend(
+        handles=[roofline_handle, ridge_handle] + handles,
+        loc="upper left",
+        fontsize=8.5,
+        framealpha=0.88,
+        title=f"Models on {hw.name}",
         title_fontsize=8,
     )
     ax.grid(True, which="both", linestyle="--", alpha=0.35)

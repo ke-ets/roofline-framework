@@ -96,6 +96,7 @@ class AnalysisResults:
         save_path: Optional[str] = None,
         show: bool = True,
         annotate_top_n: int = 5,
+        model_name: Optional[str] = None,
     ):
         """Draw the roofline chart."""
         from roofline.reporting.roofline_plot import RooflinePlot
@@ -104,6 +105,7 @@ class AnalysisResults:
             save_path=save_path,
             show=show,
             annotate_top_n=annotate_top_n,
+            model_name=model_name,
         )
 
     def print_summary(self) -> None:

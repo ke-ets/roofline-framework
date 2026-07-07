@@ -191,6 +191,38 @@ python examples/multi_model_multi_hw.py
 
 ---
 
+### HW-Detect Experiment (7 models on auto-detected hardware)
+
+Auto-detects the local GPU/CPU, then runs roofline analysis on 4 torchvision CNNs and 3 HuggingFace language models against the detected hardware.
+
+**No manual setup needed** — missing packages (`torchvision`, `transformers`, `huggingface_hub`) are installed automatically on first run.
+
+```bash
+python examples/detect_hw_roofline.py
+```
+
+Hardware detection order: NVIDIA GPU (pynvml) → AMD GPU (rocm-smi) → Apple Silicon (sysctl) → CPU fallback. If the detected chip is not in the built-in database, the script attempts a web fetch from TechPowerUp; if that also fails it falls back to Raspberry Pi 5 as a reference.
+
+**Models analyzed:**
+
+| Model | Source | Notes |
+|---|---|---|
+| AlexNet | torchvision | CNN |
+| ResNet101 | torchvision | CNN |
+| VGG16 | torchvision | CNN |
+| MobileNetV2 | torchvision | Lightweight CNN |
+| GPT-2 | HuggingFace `openai-community/gpt2` | Transformer LM |
+| DeepSeek-Coder 1.3B | HuggingFace `deepseek-ai/deepseek-coder-1.3b-base` | Code LM |
+| Gemma 2B | HuggingFace `google/gemma-2b` | Requires `huggingface-cli login` |
+
+**What it produces:**
+- 7 per-model layer-wise roofline plots (e.g. `alexnet_roofline.png`)
+- 1 consolidated plot `all_models_on_detected_hw.png` — single roofline curve for the detected hardware with one aggregate dot per model (dot size ∝ total FLOPs), showing how each model's compute-intensity compares against the hardware ceiling
+
+> **Note:** Gemma 2B is a gated model. If you see an authentication error, run `huggingface-cli login` first. The script skips Gemma gracefully and proceeds with the remaining models.
+
+---
+
 ## Roofline Model
 
 For each layer and hardware target:
@@ -246,6 +278,10 @@ roofline/
 │   ├── table_report.py      # pandas + rich table
 │   └── roofline_plot.py     # matplotlib roofline chart
 └── cli.py                   # typer CLI
+examples/
+├── alexnet_example.py       # single-model multi-HW (folder input)
+├── multi_model_multi_hw.py  # 4 CNN models × 4 HW → 5 plots
+└── detect_hw_roofline.py    # auto-detect local HW → 7 models → 8 plots
 notebooks/
 └── demo.ipynb               # end-to-end walkthrough
 tests/
