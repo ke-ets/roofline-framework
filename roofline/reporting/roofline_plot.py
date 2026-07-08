@@ -158,16 +158,19 @@ class RooflinePlot:
             for f in flop_vals
         ]
 
-        # Apply a spread so stacked dots at the same AI are visually separated.
-        # Sort by flops to assign spread positions consistently.
+        # Spread overlapping dots by jittering only the AI (X) axis.
+        # Y is then recomputed from the roofline formula so every point stays
+        # physically on or below the roofline ceiling — vertical jitter is not
+        # used because multiplying attainable_perf directly can push memory-bound
+        # points above the roofline slope.
         sort_order = sorted(range(n), key=lambda i: flop_vals[i], reverse=True)
-        spread = np.linspace(-0.6, 0.6, n)            # vertical spread in log decades
-        h_nudge = np.linspace(-0.15, 0.15, n)         # tiny horizontal nudge
+        h_nudge = np.linspace(-0.18, 0.18, n)   # horizontal spread in log decades
+        ai_jittered   = [None] * n
         perf_jittered = [None] * n
-        ai_jittered = [None] * n
         for rank, i in enumerate(sort_order):
-            perf_jittered[i] = perf_vals[rank] * (10 ** spread[rank])
-            ai_jittered[i] = ai_vals[i] * (10 ** h_nudge[rank])
+            ai_j = ai_vals[i] * (10 ** h_nudge[rank])
+            ai_jittered[i]   = ai_j
+            perf_jittered[i] = min(ai_j * peak_bw, peak_flops)   # stays on roofline
 
         sc = ax.scatter(
             ai_jittered, perf_jittered,
