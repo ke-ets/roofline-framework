@@ -906,3 +906,307 @@ def plot_models_on_hw(
     if show:
         plt.show()
     return fig
+
+
+def plot_model_across_hw_energy(
+    model_name: str,
+    results_list,
+    figsize=(15, 8),
+    save_path=None,
+    show=True,
+    annotate_top_n=6,
+    log_scale=True,
+):
+    """Dual-axis roofline + energy-efficiency chart for one model across multiple hardware targets.
+
+    Left axis (solid curves): attainable performance (FLOPs/s).
+    Right axis (dashed curves): energy efficiency (FLOPS/J).
+    Per-layer scatter is plotted on both axes simultaneously.
+    """
+    if not results_list:
+        raise ValueError("results_list must contain at least one AnalysisResults object")
+
+    try:
+        import matplotlib.pyplot as plt
+        import matplotlib.lines as mlines
+    except ImportError as e:
+        raise ImportError("matplotlib is required: pip install matplotlib") from e
+
+    first_dtype = results_list[0].dtype
+    first_mode  = results_list[0].mode
+    n_layers    = len(results_list[0].layers)
+
+    all_ai = [max(layer.arithmetic_intensity, 1e-3)
+              for result in results_list for layer in result.layers]
+    ai_min = min(min(all_ai) if all_ai else 1e-2, 1e-2)
+    all_ridges = [r.hw.ridge_point(first_dtype) for r in results_list]
+    ai_max = max(max(all_ridges) * 10, max(all_ai) * 10 if all_ai else 1e4, 1e4)
+    x_curve = np.logspace(np.log10(ai_min), np.log10(ai_max), 500)
+
+    fig, ax_left = plt.subplots(figsize=figsize)
+    ax_right = ax_left.twinx()
+
+    cmap = plt.get_cmap("tab10")
+    hw_markers = ["o", "s", "^", "D", "P", "X"]
+
+    for idx, result in enumerate(results_list):
+        hw = result.hw
+        hw_color = cmap(idx % 10)
+        marker = hw_markers[idx % len(hw_markers)]
+        peak_flops = hw._get_peak_flops(first_dtype)
+        peak_bw = hw.peak_mem_bw
+
+        # Left axis: attainable performance curve (solid)
+        y_perf = np.minimum(x_curve * peak_bw, peak_flops)
+        ax_left.plot(x_curve, y_perf, color=hw_color, linewidth=2.2,
+                     linestyle="-", zorder=5)
+
+        # Right axis: energy efficiency curve (dashed)
+        y_eff = np.array([hw.energy_efficiency(ai, first_dtype) for ai in x_curve])
+        ax_right.plot(x_curve, y_eff, color=hw_color, linewidth=2.0,
+                      linestyle="--", zorder=5)
+
+        # Per-layer scatter on left axis
+        known = [l for l in result.layers
+                 if l.layer.layer_type != "Unknown" and l.flops > 0]
+        if known:
+            ai_vals   = [max(l.arithmetic_intensity, 1e-3) for l in known]
+            perf_vals = [max(l.attainable_perf, 1.0) for l in known]
+            dot_colors = [_TYPE_COLORS.get(l.layer.layer_type, _DEFAULT_COLOR) for l in known]
+            ax_left.scatter(ai_vals, perf_vals, c=dot_colors, marker=marker,
+                            s=45, alpha=0.5, edgecolors=hw_color,
+                            linewidths=1.0, zorder=11)
+
+            # Per-layer energy efficiency scatter on right axis (diamond markers)
+            eff_vals = [max(l.energy_efficiency, 1.0) for l in known]
+            ax_right.scatter(ai_vals, eff_vals, marker="D", c=[hw_color] * len(known),
+                             s=30, alpha=0.8, edgecolors="none", zorder=12)
+
+    if log_scale:
+        ax_left.set_xscale("log")
+        ax_left.set_yscale("log")
+        ax_right.set_yscale("log")
+
+    ax_left.set_xlabel("Arithmetic Intensity (FLOPs/Byte)", fontsize=12)
+    ax_left.set_ylabel("Attainable Performance (FLOPs/s)", fontsize=12)
+    ax_right.set_ylabel("Energy Efficiency (FLOPS/J)", fontsize=12)
+
+    ax_left.set_title(
+        f"{model_name} — Roofline + Energy Efficiency across Hardware\n"
+        f"{first_dtype} | {first_mode} | {n_layers} layers",
+        fontsize=13,
+    )
+
+    # Y-axis formatters
+    ax_left.yaxis.set_major_formatter(
+        plt.FuncFormatter(lambda v, _: f"{v/1e12:.0f}T" if v >= 1e12
+                          else f"{v/1e9:.0f}G" if v >= 1e9 else f"{v:.0e}")
+    )
+    ax_right.yaxis.set_major_formatter(
+        plt.FuncFormatter(lambda v, _: f"{v/1e9:.0f}G" if v >= 1e9
+                          else f"{v/1e6:.0f}M" if v >= 1e6 else f"{v:.1e}")
+    )
+
+    ax_left.grid(True, which="both", linestyle="--", alpha=0.35)
+
+    # Legend 1 (upper left): HW entries
+    hw_handles = [
+        mlines.Line2D([], [], color=cmap(idx % 10),
+                      marker=hw_markers[idx % len(hw_markers)],
+                      markersize=7, linewidth=2.0,
+                      label=result.hw.name)
+        for idx, result in enumerate(results_list)
+    ]
+    hw_legend = ax_left.legend(handles=hw_handles, loc="upper left", fontsize=9,
+                                framealpha=0.88, title="Hardware")
+    ax_left.add_artist(hw_legend)
+
+    # Legend 2 (lower right): linestyle key
+    style_handles = [
+        mlines.Line2D([], [], color="black", linewidth=2.0, linestyle="-",
+                      label="Perf (left axis)"),
+        mlines.Line2D([], [], color="black", linewidth=2.0, linestyle="--",
+                      label="FLOPS/J (right axis)"),
+    ]
+    ax_left.legend(handles=style_handles, loc="lower right", fontsize=9,
+                   framealpha=0.88, title="Axis key")
+
+    plt.tight_layout()
+
+    if save_path:
+        fig.savefig(save_path, dpi=150, bbox_inches="tight")
+        print(f"[roofline] Saved: {save_path}")
+    if show:
+        plt.show()
+    return fig
+
+
+def plot_multi_model_multi_hw_energy(
+    results_grid: dict,
+    figsize=(15, 9),
+    save_path=None,
+    show=True,
+    log_scale=True,
+):
+    """Dual-axis aggregate roofline + energy-efficiency chart across multiple models and hardware.
+
+    Left axis (solid curves): attainable performance roofline per HW.
+    Right axis (dashed curves): energy efficiency per HW.
+    Each (model, HW) pair is plotted as one aggregate dot on both axes.
+    """
+    if not results_grid:
+        raise ValueError("results_grid must not be empty")
+
+    try:
+        import matplotlib.pyplot as plt
+        import matplotlib.lines as mlines
+    except ImportError as e:
+        raise ImportError("matplotlib is required: pip install matplotlib") from e
+
+    first_results_list = next(iter(results_grid.values()))
+    first_dtype = first_results_list[0].dtype
+    first_mode  = first_results_list[0].mode
+    hw_list = [r.hw for r in first_results_list]
+
+    cmap = plt.get_cmap("tab10")
+    hw_markers   = ["o", "s", "^", "D", "P", "X"]
+    model_names  = list(results_grid.keys())
+    model_markers = ["o", "s", "^", "D", "P", "X", "v", "<", ">", "h"]
+
+    # Aggregate metrics per (model, HW)
+    agg = {}
+    all_ai_vals = []
+    for model_name, results_list in results_grid.items():
+        agg[model_name] = []
+        for result in results_list:
+            total_flops = sum(l.flops for l in result.layers)
+            total_bytes = sum(l.total_bytes for l in result.layers)
+            ai = total_flops / total_bytes if total_bytes > 0 else 0.0
+            attainable  = result.hw.attainable_performance(ai, first_dtype)
+            agg_eff     = result.hw.energy_efficiency(ai, first_dtype)
+            agg[model_name].append((max(ai, 1e-3), attainable, total_flops, agg_eff))
+            all_ai_vals.append(max(ai, 1e-3))
+
+    all_ridges = [hw.ridge_point(first_dtype) for hw in hw_list]
+    ai_min = min(min(all_ai_vals) * 0.3, 1e-2) if all_ai_vals else 1e-2
+    ai_max = max(max(all_ridges) * 10, max(all_ai_vals) * 5, 1e4) if all_ai_vals else 1e4
+    x_curve = np.logspace(np.log10(ai_min), np.log10(ai_max), 500)
+
+    fig, ax_left = plt.subplots(figsize=figsize)
+    ax_right = ax_left.twinx()
+
+    # Draw roofline and efficiency curves per HW
+    for hw_idx, hw in enumerate(hw_list):
+        color = cmap(hw_idx % 10)
+        peak_flops = hw._get_peak_flops(first_dtype)
+        peak_bw = hw.peak_mem_bw
+
+        y_perf = np.minimum(x_curve * peak_bw, peak_flops)
+        ax_left.plot(x_curve, y_perf, color=color, linewidth=2.2,
+                     linestyle="-", zorder=5)
+
+        y_eff = np.array([hw.energy_efficiency(ai, first_dtype) for ai in x_curve])
+        ax_right.plot(x_curve, y_eff, color=color, linewidth=2.0,
+                      linestyle="--", zorder=5)
+
+    # Dot sizes proportional to log(total_flops)
+    ref_flops = [agg[m][0][2] for m in model_names]
+    max_log_flops = max(np.log1p(f) for f in ref_flops) if ref_flops else 1
+
+    annotated_models = set()
+    for m_idx, model_name in enumerate(model_names):
+        m_marker = model_markers[m_idx % len(model_markers)]
+        total_flops_ref = agg[model_name][0][2]
+        dot_size = max(120, 600 * (np.log1p(total_flops_ref) / max_log_flops) ** 1.5)
+
+        best_ai_idx = int(np.argmax([a[0] for a in agg[model_name]]))
+
+        for hw_idx, (ai, attainable, total_flops, agg_eff) in enumerate(agg[model_name]):
+            color = cmap(hw_idx % 10)
+
+            # Right axis: energy efficiency aggregate dot
+            ax_right.scatter([ai], [agg_eff], marker=m_marker, c=[color],
+                             s=dot_size, edgecolors="white", linewidths=1.2,
+                             zorder=13, alpha=0.92)
+
+            # Left axis: attainable perf aggregate dot (lower alpha)
+            ax_left.scatter([ai], [attainable], marker=m_marker, c=[color],
+                            s=dot_size, edgecolors="white", linewidths=1.2,
+                            zorder=12, alpha=0.5)
+
+        if model_name not in annotated_models:
+            annotated_models.add(model_name)
+            best_ai, _, _, best_eff = agg[model_name][best_ai_idx]
+            ax_right.annotate(
+                model_name,
+                xy=(best_ai, best_eff),
+                xytext=(best_ai * 1.15, best_eff * 1.35),
+                fontsize=9,
+                fontweight="bold",
+                color="#222222",
+                arrowprops=dict(arrowstyle="-", color="#bbbbbb", lw=0.9),
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
+                          edgecolor="#dddddd", alpha=0.9),
+                zorder=20,
+            )
+
+    if log_scale:
+        ax_left.set_xscale("log")
+        ax_left.set_yscale("log")
+        ax_right.set_yscale("log")
+
+    ax_left.set_xlabel("Arithmetic Intensity (FLOPs/Byte)", fontsize=12)
+    ax_left.set_ylabel("Attainable Performance (FLOPs/s)", fontsize=12)
+    ax_right.set_ylabel("Energy Efficiency (FLOPS/J)", fontsize=12)
+
+    ax_left.set_title(
+        f"Roofline + Energy Efficiency — Model vs Hardware\n"
+        f"{first_dtype} | {first_mode}  (dots = aggregate AI; size \u221d total FLOPs)",
+        fontsize=13,
+    )
+
+    # Y-axis formatters
+    ax_left.yaxis.set_major_formatter(
+        plt.FuncFormatter(lambda v, _: f"{v/1e12:.0f}T" if v >= 1e12
+                          else f"{v/1e9:.0f}G" if v >= 1e9 else f"{v:.0e}")
+    )
+    ax_right.yaxis.set_major_formatter(
+        plt.FuncFormatter(lambda v, _: f"{v/1e9:.0f}G" if v >= 1e9
+                          else f"{v/1e6:.0f}M" if v >= 1e6 else f"{v:.1e}")
+    )
+
+    ax_left.grid(True, which="both", linestyle="--", alpha=0.35)
+
+    # Legend: HW (color) + Model (shape) + linestyle key
+    hw_handles = [
+        mlines.Line2D([], [], color=cmap(i % 10), linewidth=2.2, label=hw.name)
+        for i, hw in enumerate(hw_list)
+    ]
+    model_handles = [
+        mlines.Line2D([], [], color="#555555",
+                      marker=model_markers[i % len(model_markers)],
+                      markersize=9, linestyle="None", label=name)
+        for i, name in enumerate(model_names)
+    ]
+    style_handles = [
+        mlines.Line2D([], [], color="black", linewidth=1.8, linestyle="-",
+                      label="solid = Perf / dashed = FLOPS/J"),
+    ]
+    ax_left.legend(
+        handles=hw_handles + model_handles + style_handles,
+        loc="upper left",
+        fontsize=8.5,
+        framealpha=0.88,
+        ncol=2,
+        title="Hardware (color) | Model (shape)",
+        title_fontsize=8,
+    )
+
+    plt.tight_layout()
+
+    if save_path:
+        fig.savefig(save_path, dpi=200, bbox_inches="tight")
+        print(f"[roofline] Saved: {save_path}")
+    if show:
+        plt.show()
+    return fig

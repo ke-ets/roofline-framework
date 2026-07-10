@@ -70,6 +70,16 @@ class AnalysisResults:
     def theoretical_time_ms(self) -> float:
         return sum(l.theoretical_time_ms for l in self.layers)
 
+    @property
+    def total_energy_j(self) -> float:
+        return sum(l.energy_j for l in self.layers)
+
+    @property
+    def energy_efficiency(self) -> float:
+        """FLOPS/J for the whole model = total_flops / total_energy_j."""
+        e = self.total_energy_j
+        return self.total_flops / e if e > 0 else 0.0
+
     def memory_bound_layers(self) -> List[LayerStats]:
         return [l for l in self.layers if l.bottleneck == "memory"]
 
@@ -133,6 +143,8 @@ class AnalysisResults:
             f"  Ridge point      : {ridge:.1f} FLOPs/Byte",
             f"  Memory-bound     : {nb}/{total} layers ({100*nb//total if total else 0}%)",
             f"  Compute-bound    : {cb}/{total} layers ({100*cb//total if total else 0}%)",
+            f"  Total energy     : {self.total_energy_j*1e6:.3f} µJ",
+            f"  Energy effic.    : {self.energy_efficiency/1e9:.3f} GFLOPS/J",
         ]
         return "\n".join(lines)
 
@@ -178,6 +190,8 @@ class RooflineAnalyzer:
         # ---- 4. Compute FLOPs + memory per layer ----
         layer_stats = []
         ridge = hw.ridge_point(dtype)
+        e_flop = hw.energy_per_flop(dtype)
+        e_byte = hw.energy_per_byte()
 
         for li in layer_infos:
             flops = self.flop_counter.count(li)
@@ -190,6 +204,8 @@ class RooflineAnalyzer:
             attainable = hw.attainable_performance(ai, dtype)
             bottleneck = "compute" if ai > ridge else "memory"
             t_ms = flops / attainable * 1000.0 if attainable > 0 else 0.0
+            e_j   = e_flop * flops + e_byte * total_bytes
+            e_eff = flops / e_j if e_j > 0 else 0.0
 
             layer_stats.append(
                 LayerStats(
@@ -205,6 +221,8 @@ class RooflineAnalyzer:
                     theoretical_time_ms=t_ms,
                     hw_name=hw.name,
                     dtype_used=dtype,
+                    energy_j=e_j,
+                    energy_efficiency=e_eff,
                 )
             )
 

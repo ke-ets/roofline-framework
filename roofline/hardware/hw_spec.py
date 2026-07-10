@@ -6,6 +6,10 @@ from dataclasses import dataclass, field
 from typing import Dict, Optional
 
 
+COMPUTE_POWER_FRACTION = 0.75
+MEMORY_POWER_FRACTION  = 0.25
+
+
 @dataclass
 class HWSpec:
     """Hardware specification used for roofline model computation.
@@ -86,6 +90,42 @@ class HWSpec:
         dtype = dtype.lower()
         flops = self._get_peak_flops(dtype)
         return min(arithmetic_intensity * self.peak_mem_bw, flops)
+
+    def energy_per_flop(self, dtype: str = "float32") -> float:
+        """Return energy cost per FLOP (J/FLOP) using TDP-based model.
+
+        E_per_flop = P_max * COMPUTE_POWER_FRACTION / peak_flops[dtype]
+        """
+        peak = self._get_peak_flops(dtype.lower())
+        if peak == 0:
+            return 0.0
+        return self.tdp_watts * COMPUTE_POWER_FRACTION / peak
+
+    def energy_per_byte(self) -> float:
+        """Return energy cost per byte of memory traffic (J/byte) using TDP-based model.
+
+        E_per_byte = P_max * MEMORY_POWER_FRACTION / peak_mem_bw
+        """
+        if self.peak_mem_bw == 0:
+            return 0.0
+        return self.tdp_watts * MEMORY_POWER_FRACTION / self.peak_mem_bw
+
+    def energy_efficiency(self, arithmetic_intensity: float, dtype: str = "float32") -> float:
+        """Return energy efficiency (FLOPS/J) for a given arithmetic intensity.
+
+        This is identical to total_FLOPs / E_total evaluated at the given AI:
+
+            efficiency = AI / (E_per_flop * AI + E_per_byte)
+
+        Ceiling (AI -> inf): 1 / E_per_flop  (compute-bound energy ceiling)
+        Low-AI slope:        AI / E_per_byte  (memory-bound regime)
+        """
+        e_flop = self.energy_per_flop(dtype)
+        e_byte = self.energy_per_byte()
+        denom  = e_flop * arithmetic_intensity + e_byte
+        if denom == 0:
+            return 0.0
+        return arithmetic_intensity / denom
 
     def _get_peak_flops(self, dtype: str) -> float:
         """Return peak FLOPs for dtype, falling back to nearest available."""

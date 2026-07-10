@@ -237,6 +237,35 @@ theoretical_time_ms = FLOPs / attainable_perf × 1000
 
 ---
 
+## Energy Efficiency
+
+For each layer and the model as a whole, the framework estimates energy consumption and energy efficiency (FLOPS/J) using a TDP-based two-term model:
+
+```
+E_per_flop  = TDP × 0.75 / peak_flops[dtype]   # J / FLOP  (75% of TDP to compute)
+E_per_byte  = TDP × 0.25 / peak_mem_bw          # J / byte  (25% of TDP to memory)
+E_total     = E_per_flop × FLOPs + E_per_byte × bytes   # Joules
+efficiency  = FLOPs / E_total  =  AI / (E_per_flop × AI + E_per_byte)   # FLOPS/J
+```
+
+The efficiency equals `FLOPs/s ÷ average_power` — the two forms are algebraically identical.
+Ceiling (compute-bound, AI → ∞): `1 / E_per_flop`.  Low-AI slope (memory-bound): `AI / E_per_byte`.
+
+The 75/25 split is adjustable via `HWSpec.COMPUTE_POWER_FRACTION` / `MEMORY_POWER_FRACTION`.
+
+### Energy plot functions
+
+```python
+from roofline.reporting.roofline_plot import (
+    plot_model_across_hw_energy,      # per-model: perf roofline (left) + FLOPS/J curve (right)
+    plot_multi_model_multi_hw_energy, # combined: all models × all HW, dual-axis
+)
+```
+
+See `examples/energy_efficiency_multi_model.py` for a full demo (4 models × 4 hardware targets → 5 plots).
+
+---
+
 ## Extending with Custom FLOPs Handlers
 
 ```python

@@ -59,6 +59,10 @@ class TableReport:
             df["total_bytes_fmt"] = df["total_bytes"].apply(_fmt_bytes)
         if "params" in df.columns:
             df["params_fmt"] = df["params"].apply(_fmt_params)
+        if "energy_j" in df.columns:
+            df["energy_uj"] = df["energy_j"].apply(lambda v: f"{v*1e6:.4f}")
+        if "energy_efficiency" in df.columns:
+            df["energy_eff_gflops_j"] = df["energy_efficiency"].apply(lambda v: f"{v/1e9:.4f}")
 
         return df
 
@@ -120,6 +124,8 @@ class TableReport:
         table.add_column("Attainable\n(TFLOPs)", justify="right")
         table.add_column("Bottleneck", justify="center")
         table.add_column("Time (ms)", justify="right", style="blue")
+        table.add_column("Energy (µJ)", justify="right", style="magenta")
+        table.add_column("Effic.\n(GFLOPS/J)", justify="right", style="magenta")
 
         for ls in layers:
             bottleneck_style = "[red]memory[/red]" if ls.bottleneck == "memory" else "[green]compute[/green]"
@@ -134,6 +140,8 @@ class TableReport:
                 f"{ls.attainable_perf/1e12:.3f}",
                 bottleneck_style,
                 f"{ls.theoretical_time_ms:.4f}",
+                f"{ls.energy_j*1e6:.4f}",
+                f"{ls.energy_efficiency/1e9:.4f}",
             )
 
         console.print(table)
@@ -142,11 +150,15 @@ class TableReport:
         total_flops = sum(layer.flops for layer in self.results.layers)
         total_bytes = sum(layer.total_bytes for layer in self.results.layers)
         total_time = sum(layer.theoretical_time_ms for layer in self.results.layers)
+        total_energy_j = sum(layer.energy_j for layer in self.results.layers)
+        total_eff = total_flops / total_energy_j if total_energy_j > 0 else 0.0
         console.print(
             f"\n[bold]Totals:[/bold] "
             f"FLOPs={_fmt_flops(total_flops)}  "
             f"Memory={_fmt_bytes(total_bytes)}  "
-            f"Est. Time={total_time:.3f} ms\n"
+            f"Est. Time={total_time:.3f} ms  "
+            f"Energy={total_energy_j*1e6:.3f} µJ  "
+            f"Effic.={total_eff/1e9:.3f} GFLOPS/J\n"
         )
 
 

@@ -140,6 +140,14 @@ class LayerStats:
     dtype_used: str = ""
     """Dtype used during analysis (determines which peak_flops entry is used)."""
 
+    energy_j: float = 0.0
+    """Total energy consumed by this layer (Joules), computed as
+    E_per_flop * flops + E_per_byte * total_bytes using TDP-based coefficients."""
+
+    energy_efficiency: float = 0.0
+    """Energy efficiency (FLOPS/J) = flops / energy_j.
+    Equivalent to AI / (E_per_flop * AI + E_per_byte) — a function of AI only."""
+
     def efficiency_pct(self) -> float:
         """Percentage of theoretical peak compute utilised (0–100)."""
         peak = self.attainable_perf
@@ -168,4 +176,6 @@ class LayerStats:
             "bottleneck": self.bottleneck,
             "theoretical_time_ms": round(self.theoretical_time_ms, 6),
             "hw": self.hw_name,
+            "energy_j":          round(self.energy_j, 9),
+            "energy_efficiency": round(self.energy_efficiency, 2),
         }
