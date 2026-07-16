@@ -1,0 +1,2105 @@
+# Time Analysis Roofline Report
+
+- **Models**: AlexNet, MobileNetV2, ResNet101, VGG16
+- **Hardware**: Raspberry Pi 4, Raspberry Pi 5, Apple M4, Arduino Nicla Vision
+- **dtype**: float32  |  **mode**: inference
+
+### Model Summary
+
+| Model | Hardware | W (FLOPs) | Q (Bytes) | I (F/B) | Y (FLOPs/s) | T_compute | T_memory | T_actual | Bottleneck |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| AlexNet | Raspberry Pi 4 | 1.43G | 253.8M | 5.634 | 48.00G | 29.786 ms | 9.914 ms | 29.786 ms | compute |
+| AlexNet | Raspberry Pi 5 | 1.43G | 253.8M | 5.634 | 38.40G | 37.232 ms | 4.957 ms | 37.232 ms | compute |
+| AlexNet | Apple M4 | 1.43G | 253.8M | 5.634 | 676.03G | 2.115 ms | 2.115 ms | 2.115 ms | compute |
+| AlexNet | Arduino Nicla Vision | 1.43G | 253.8M | 5.634 | 1.92G | 744.649 ms | 16.523 ms | 744.649 ms | compute |
+| MobileNetV2 | Raspberry Pi 4 | 621.0M | 170.1M | 3.651 | 48.00G | 12.938 ms | 6.644 ms | 12.938 ms | compute |
+| MobileNetV2 | Raspberry Pi 5 | 621.0M | 170.1M | 3.651 | 38.40G | 16.172 ms | 3.322 ms | 16.172 ms | compute |
+| MobileNetV2 | Apple M4 | 621.0M | 170.1M | 3.651 | 438.14G | 1.417 ms | 1.417 ms | 1.417 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | 621.0M | 170.1M | 3.651 | 1.92G | 323.444 ms | 11.073 ms | 323.444 ms | compute |
+| ResNet101 | Raspberry Pi 4 | 15.66G | 661.3M | 23.686 | 48.00G | 326.327 ms | 25.832 ms | 326.327 ms | compute |
+| ResNet101 | Raspberry Pi 5 | 15.66G | 661.3M | 23.686 | 38.40G | 407.908 ms | 12.916 ms | 407.908 ms | compute |
+| ResNet101 | Apple M4 | 15.66G | 661.3M | 23.686 | 2.84T | 5.511 ms | 5.511 ms | 5.511 ms | compute |
+| ResNet101 | Arduino Nicla Vision | 15.66G | 661.3M | 23.686 | 1.92G | 8.158 s | 43.054 ms | 8.158 s | compute |
+| VGG16 | Raspberry Pi 4 | 30.97G | 783.4M | 39.536 | 48.00G | 645.287 ms | 30.603 ms | 645.287 ms | compute |
+| VGG16 | Raspberry Pi 5 | 30.97G | 783.4M | 39.536 | 38.40G | 806.609 ms | 15.302 ms | 806.609 ms | compute |
+| VGG16 | Apple M4 | 30.97G | 783.4M | 39.536 | 4.60T | 6.733 ms | 6.529 ms | 6.733 ms | compute |
+| VGG16 | Arduino Nicla Vision | 30.97G | 783.4M | 39.536 | 1.92G | 16.132 s | 51.005 ms | 16.132 s | compute |
+
+### Top-10 Layer Summary
+
+| Rank | Model | Type | Layer | W (FLOPs) | I (F/B) | T_actual [Raspberry Pi 4] | T_actual [Raspberry Pi 5] | T_actual [Apple M4] | T_actual [Arduino Nicla Vision] |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | AlexNet | Conv2d | features.3 | 448.0M | 226.7323 | 9.334 ms | 11.668 ms | 97.399 us | 233.353 ms |
+| 2 | AlexNet | Linear | classifier.1 | 75.5M | 0.4998 | 5.901 ms | 2.950 ms | 1.259 ms | 39.324 ms |
+| 3 | AlexNet | ReLU | features.1 | 194K | 0.1250 | 60.500 us | 30.250 us | 12.907 us | 100.833 us |
+| 4 | AlexNet | MaxPool | features.2 | 187K | 0.1942 | 37.540 us | 18.770 us | 8.009 us | 97.200 us |
+| 5 | AlexNet | AdaptiveAvgPool | avgpool | 9K | 0.1250 | 2.880 us | 1.440 us | 614.40 ns | 4.800 us |
+| 1 | MobileNetV2 | Conv2d | features.18.0 | 40.1M | 20.5639 | 836.267 us | 1.045 ms | 16.267 us | 20.907 ms |
+| 2 | MobileNetV2 | Linear | classifier.1 | 2.6M | 0.4989 | 200.512 us | 100.256 us | 42.776 us | 1.334 ms |
+| 3 | MobileNetV2 | BatchNorm | features.2.conv.0.1 | 2.4M | 0.2500 | 376.350 us | 188.175 us | 80.288 us | 1.254 ms |
+| 4 | MobileNetV2 | ReLU | features.2.conv.0.2 | 1.2M | 0.1250 | 376.320 us | 188.160 us | 80.282 us | 627.200 us |
+| 1 | ResNet101 | Conv2d | conv1 | 236.0M | 61.2899 | 4.917 ms | 6.147 ms | 51.310 us | 122.931 ms |
+| 2 | ResNet101 | Linear | fc | 4.1M | 0.4991 | 320.632 us | 160.316 us | 68.402 us | 2.134 ms |
+| 3 | ResNet101 | BatchNorm | bn1 | 1.6M | 0.2500 | 250.900 us | 125.450 us | 53.525 us | 836.267 us |
+| 4 | ResNet101 | ReLU | relu | 803K | 0.1250 | 250.880 us | 125.440 us | 53.521 us | 418.133 us |
+| 5 | ResNet101 | MaxPool | maxpool | 803K | 0.2000 | 156.800 us | 78.400 us | 33.451 us | 418.133 us |
+| 6 | ResNet101 | AdaptiveAvgPool | avgpool | 2K | 0.0050 | 16.000 us | 8.000 us | 3.413 us | 26.667 us |
+| 1 | VGG16 | Conv2d | features.2 | 3.70G | 143.3011 | 77.137 ms | 96.422 ms | 804.910 us | 1.928 s |
+| 2 | VGG16 | Linear | classifier.0 | 205.5M | 0.4998 | 16.062 ms | 8.031 ms | 3.426 ms | 107.044 ms |
+| 3 | VGG16 | ReLU | features.1 | 3.2M | 0.1250 | 1.004 ms | 501.760 us | 214.084 us | 1.673 ms |
+| 4 | VGG16 | MaxPool | features.4 | 3.2M | 0.2000 | 627.200 us | 313.600 us | 133.803 us | 1.673 ms |
+| 5 | VGG16 | AdaptiveAvgPool | avgpool | 25K | 0.1250 | 7.840 us | 3.920 us | 1.673 us | 13.067 us |
+
+### Full Layer Detail
+
+| Model | Hardware | Layer | Type | W (FLOPs) | Q (Bytes) | I (F/B) | Y (FLOPs/s) | T_compute | T_memory | T_actual | Bottleneck |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| AlexNet | Raspberry Pi 4 | features.0 | Conv2d | 140.7M | 1.5M | 95.7662 | 48.00G | 2.932 ms | 57.410 us | 2.932 ms | compute |
+| AlexNet | Raspberry Pi 4 | features.1 | ReLU | 194K | 1.5M | 0.1250 | 3.20G | 60.500 us | 60.500 us | 60.500 us | memory |
+| AlexNet | Raspberry Pi 4 | features.2 | MaxPool | 187K | 961K | 0.1942 | 4.97G | 37.540 us | 37.540 us | 37.540 us | memory |
+| AlexNet | Raspberry Pi 4 | features.3 | Conv2d | 448.0M | 2.0M | 226.7323 | 48.00G | 9.334 ms | 77.190 us | 9.334 ms | compute |
+| AlexNet | Raspberry Pi 4 | features.4 | ReLU | 140K | 1.1M | 0.1250 | 3.20G | 43.740 us | 43.740 us | 43.740 us | memory |
+| AlexNet | Raspberry Pi 4 | features.5 | MaxPool | 130K | 690K | 0.1882 | 4.82G | 26.940 us | 26.940 us | 26.940 us | memory |
+| AlexNet | Raspberry Pi 4 | features.6 | Conv2d | 224.3M | 3.0M | 73.6738 | 48.00G | 4.674 ms | 118.950 us | 4.674 ms | compute |
+| AlexNet | Raspberry Pi 4 | features.7 | ReLU | 65K | 519K | 0.1250 | 3.20G | 20.280 us | 20.280 us | 20.280 us | memory |
+| AlexNet | Raspberry Pi 4 | features.8 | Conv2d | 299.1M | 4.0M | 75.2866 | 48.00G | 6.231 ms | 155.180 us | 6.231 ms | compute |
+| AlexNet | Raspberry Pi 4 | features.9 | ReLU | 43K | 346K | 0.1250 | 3.20G | 13.520 us | 13.520 us | 13.520 us | memory |
+| AlexNet | Raspberry Pi 4 | features.10 | Conv2d | 199.4M | 2.7M | 73.6777 | 48.00G | 4.154 ms | 105.720 us | 4.154 ms | compute |
+| AlexNet | Raspberry Pi 4 | features.11 | ReLU | 43K | 346K | 0.1250 | 3.20G | 13.520 us | 13.520 us | 13.520 us | memory |
+| AlexNet | Raspberry Pi 4 | features.12 | MaxPool | 37K | 210K | 0.1756 | 4.50G | 8.200 us | 8.200 us | 8.200 us | memory |
+| AlexNet | Raspberry Pi 4 | avgpool | AdaptiveAvgPool | 9K | 74K | 0.1250 | 3.20G | 2.880 us | 2.880 us | 2.880 us | memory |
+| AlexNet | Raspberry Pi 4 | classifier.0 | Dropout | 0 | 74K | 0.0000 | 0 | 0 s | 2.880 us | 2.880 us | memory |
+| AlexNet | Raspberry Pi 4 | classifier.1 | Linear | 75.5M | 151.1M | 0.4998 | 12.79G | 5.901 ms | 5.901 ms | 5.901 ms | memory |
+| AlexNet | Raspberry Pi 4 | classifier.2 | ReLU | 4K | 33K | 0.1250 | 3.20G | 1.280 us | 1.280 us | 1.280 us | memory |
+| AlexNet | Raspberry Pi 4 | classifier.3 | Dropout | 0 | 33K | 0.0000 | 0 | 0 s | 1.280 us | 1.280 us | memory |
+| AlexNet | Raspberry Pi 4 | classifier.4 | Linear | 33.6M | 67.2M | 0.4997 | 12.79G | 2.623 ms | 2.623 ms | 2.623 ms | memory |
+| AlexNet | Raspberry Pi 4 | classifier.5 | ReLU | 4K | 33K | 0.1250 | 3.20G | 1.280 us | 1.280 us | 1.280 us | memory |
+| AlexNet | Raspberry Pi 4 | classifier.6 | Linear | 8.2M | 16.4M | 0.4993 | 12.78G | 640.952 us | 640.952 us | 640.952 us | memory |
+| AlexNet | Raspberry Pi 5 | features.0 | Conv2d | 140.7M | 1.5M | 95.7662 | 38.40G | 3.665 ms | 28.705 us | 3.665 ms | compute |
+| AlexNet | Raspberry Pi 5 | features.1 | ReLU | 194K | 1.5M | 0.1250 | 6.40G | 30.250 us | 30.250 us | 30.250 us | memory |
+| AlexNet | Raspberry Pi 5 | features.2 | MaxPool | 187K | 961K | 0.1942 | 9.94G | 18.770 us | 18.770 us | 18.770 us | memory |
+| AlexNet | Raspberry Pi 5 | features.3 | Conv2d | 448.0M | 2.0M | 226.7323 | 38.40G | 11.668 ms | 38.595 us | 11.668 ms | compute |
+| AlexNet | Raspberry Pi 5 | features.4 | ReLU | 140K | 1.1M | 0.1250 | 6.40G | 21.870 us | 21.870 us | 21.870 us | memory |
+| AlexNet | Raspberry Pi 5 | features.5 | MaxPool | 130K | 690K | 0.1882 | 9.64G | 13.470 us | 13.470 us | 13.470 us | memory |
+| AlexNet | Raspberry Pi 5 | features.6 | Conv2d | 224.3M | 3.0M | 73.6738 | 38.40G | 5.842 ms | 59.475 us | 5.842 ms | compute |
+| AlexNet | Raspberry Pi 5 | features.7 | ReLU | 65K | 519K | 0.1250 | 6.40G | 10.140 us | 10.140 us | 10.140 us | memory |
+| AlexNet | Raspberry Pi 5 | features.8 | Conv2d | 299.1M | 4.0M | 75.2866 | 38.40G | 7.789 ms | 77.590 us | 7.789 ms | compute |
+| AlexNet | Raspberry Pi 5 | features.9 | ReLU | 43K | 346K | 0.1250 | 6.40G | 6.760 us | 6.760 us | 6.760 us | memory |
+| AlexNet | Raspberry Pi 5 | features.10 | Conv2d | 199.4M | 2.7M | 73.6777 | 38.40G | 5.193 ms | 52.860 us | 5.193 ms | compute |
+| AlexNet | Raspberry Pi 5 | features.11 | ReLU | 43K | 346K | 0.1250 | 6.40G | 6.760 us | 6.760 us | 6.760 us | memory |
+| AlexNet | Raspberry Pi 5 | features.12 | MaxPool | 37K | 210K | 0.1756 | 8.99G | 4.100 us | 4.100 us | 4.100 us | memory |
+| AlexNet | Raspberry Pi 5 | avgpool | AdaptiveAvgPool | 9K | 74K | 0.1250 | 6.40G | 1.440 us | 1.440 us | 1.440 us | memory |
+| AlexNet | Raspberry Pi 5 | classifier.0 | Dropout | 0 | 74K | 0.0000 | 0 | 0 s | 1.440 us | 1.440 us | memory |
+| AlexNet | Raspberry Pi 5 | classifier.1 | Linear | 75.5M | 151.1M | 0.4998 | 25.59G | 2.950 ms | 2.950 ms | 2.950 ms | memory |
+| AlexNet | Raspberry Pi 5 | classifier.2 | ReLU | 4K | 33K | 0.1250 | 6.40G | 640.00 ns | 640.00 ns | 640.00 ns | memory |
+| AlexNet | Raspberry Pi 5 | classifier.3 | Dropout | 0 | 33K | 0.0000 | 0 | 0 s | 640.00 ns | 640.00 ns | memory |
+| AlexNet | Raspberry Pi 5 | classifier.4 | Linear | 33.6M | 67.2M | 0.4997 | 25.58G | 1.312 ms | 1.312 ms | 1.312 ms | memory |
+| AlexNet | Raspberry Pi 5 | classifier.5 | ReLU | 4K | 33K | 0.1250 | 6.40G | 640.00 ns | 640.00 ns | 640.00 ns | memory |
+| AlexNet | Raspberry Pi 5 | classifier.6 | Linear | 8.2M | 16.4M | 0.4993 | 25.57G | 320.476 us | 320.476 us | 320.476 us | memory |
+| AlexNet | Apple M4 | features.0 | Conv2d | 140.7M | 1.5M | 95.7662 | 4.60T | 30.597 us | 12.247 us | 30.597 us | compute |
+| AlexNet | Apple M4 | features.1 | ReLU | 194K | 1.5M | 0.1250 | 15.00G | 12.907 us | 12.907 us | 12.907 us | memory |
+| AlexNet | Apple M4 | features.2 | MaxPool | 187K | 961K | 0.1942 | 23.30G | 8.009 us | 8.009 us | 8.009 us | memory |
+| AlexNet | Apple M4 | features.3 | Conv2d | 448.0M | 2.0M | 226.7323 | 4.60T | 97.399 us | 16.467 us | 97.399 us | compute |
+| AlexNet | Apple M4 | features.4 | ReLU | 140K | 1.1M | 0.1250 | 15.00G | 9.331 us | 9.331 us | 9.331 us | memory |
+| AlexNet | Apple M4 | features.5 | MaxPool | 130K | 690K | 0.1882 | 22.58G | 5.747 us | 5.747 us | 5.747 us | memory |
+| AlexNet | Apple M4 | features.6 | Conv2d | 224.3M | 3.0M | 73.6738 | 4.60T | 48.771 us | 25.376 us | 48.771 us | compute |
+| AlexNet | Apple M4 | features.7 | ReLU | 65K | 519K | 0.1250 | 15.00G | 4.326 us | 4.326 us | 4.326 us | memory |
+| AlexNet | Apple M4 | features.8 | Conv2d | 299.1M | 4.0M | 75.2866 | 4.60T | 65.018 us | 33.105 us | 65.018 us | compute |
+| AlexNet | Apple M4 | features.9 | ReLU | 43K | 346K | 0.1250 | 15.00G | 2.884 us | 2.884 us | 2.884 us | memory |
+| AlexNet | Apple M4 | features.10 | Conv2d | 199.4M | 2.7M | 73.6777 | 4.60T | 43.349 us | 22.554 us | 43.349 us | compute |
+| AlexNet | Apple M4 | features.11 | ReLU | 43K | 346K | 0.1250 | 15.00G | 2.884 us | 2.884 us | 2.884 us | memory |
+| AlexNet | Apple M4 | features.12 | MaxPool | 37K | 210K | 0.1756 | 21.07G | 1.749 us | 1.749 us | 1.749 us | memory |
+| AlexNet | Apple M4 | avgpool | AdaptiveAvgPool | 9K | 74K | 0.1250 | 15.00G | 614.40 ns | 614.40 ns | 614.40 ns | memory |
+| AlexNet | Apple M4 | classifier.0 | Dropout | 0 | 74K | 0.0000 | 0 | 0 s | 614.40 ns | 614.40 ns | memory |
+| AlexNet | Apple M4 | classifier.1 | Linear | 75.5M | 151.1M | 0.4998 | 59.98G | 1.259 ms | 1.259 ms | 1.259 ms | memory |
+| AlexNet | Apple M4 | classifier.2 | ReLU | 4K | 33K | 0.1250 | 15.00G | 273.07 ns | 273.07 ns | 273.07 ns | memory |
+| AlexNet | Apple M4 | classifier.3 | Dropout | 0 | 33K | 0.0000 | 0 | 0 s | 273.07 ns | 273.07 ns | memory |
+| AlexNet | Apple M4 | classifier.4 | Linear | 33.6M | 67.2M | 0.4997 | 59.96G | 559.650 us | 559.650 us | 559.650 us | memory |
+| AlexNet | Apple M4 | classifier.5 | ReLU | 4K | 33K | 0.1250 | 15.00G | 273.07 ns | 273.07 ns | 273.07 ns | memory |
+| AlexNet | Apple M4 | classifier.6 | Linear | 8.2M | 16.4M | 0.4993 | 59.92G | 136.737 us | 136.737 us | 136.737 us | memory |
+| AlexNet | Arduino Nicla Vision | features.0 | Conv2d | 140.7M | 1.5M | 95.7662 | 1.92G | 73.306 ms | 95.683 us | 73.306 ms | compute |
+| AlexNet | Arduino Nicla Vision | features.1 | ReLU | 194K | 1.5M | 0.1250 | 1.92G | 100.833 us | 100.833 us | 100.833 us | memory |
+| AlexNet | Arduino Nicla Vision | features.2 | MaxPool | 187K | 961K | 0.1942 | 1.92G | 97.200 us | 62.567 us | 97.200 us | compute |
+| AlexNet | Arduino Nicla Vision | features.3 | Conv2d | 448.0M | 2.0M | 226.7323 | 1.92G | 233.353 ms | 128.650 us | 233.353 ms | compute |
+| AlexNet | Arduino Nicla Vision | features.4 | ReLU | 140K | 1.1M | 0.1250 | 1.92G | 72.900 us | 72.900 us | 72.900 us | memory |
+| AlexNet | Arduino Nicla Vision | features.5 | MaxPool | 130K | 690K | 0.1882 | 1.92G | 67.600 us | 44.900 us | 67.600 us | compute |
+| AlexNet | Arduino Nicla Vision | features.6 | Conv2d | 224.3M | 3.0M | 73.6738 | 1.92G | 116.847 ms | 198.250 us | 116.847 ms | compute |
+| AlexNet | Arduino Nicla Vision | features.7 | ReLU | 65K | 519K | 0.1250 | 1.92G | 33.800 us | 33.800 us | 33.800 us | memory |
+| AlexNet | Arduino Nicla Vision | features.8 | Conv2d | 299.1M | 4.0M | 75.2866 | 1.92G | 155.773 ms | 258.633 us | 155.773 ms | compute |
+| AlexNet | Arduino Nicla Vision | features.9 | ReLU | 43K | 346K | 0.1250 | 1.92G | 22.533 us | 22.533 us | 22.533 us | memory |
+| AlexNet | Arduino Nicla Vision | features.10 | Conv2d | 199.4M | 2.7M | 73.6777 | 1.92G | 103.856 ms | 176.200 us | 103.856 ms | compute |
+| AlexNet | Arduino Nicla Vision | features.11 | ReLU | 43K | 346K | 0.1250 | 1.92G | 22.533 us | 22.533 us | 22.533 us | memory |
+| AlexNet | Arduino Nicla Vision | features.12 | MaxPool | 37K | 210K | 0.1756 | 1.92G | 19.200 us | 13.667 us | 19.200 us | compute |
+| AlexNet | Arduino Nicla Vision | avgpool | AdaptiveAvgPool | 9K | 74K | 0.1250 | 1.92G | 4.800 us | 4.800 us | 4.800 us | memory |
+| AlexNet | Arduino Nicla Vision | classifier.0 | Dropout | 0 | 74K | 0.0000 | 0 | 0 s | 4.800 us | 4.800 us | memory |
+| AlexNet | Arduino Nicla Vision | classifier.1 | Linear | 75.5M | 151.1M | 0.4998 | 1.92G | 39.324 ms | 9.835 ms | 39.324 ms | compute |
+| AlexNet | Arduino Nicla Vision | classifier.2 | ReLU | 4K | 33K | 0.1250 | 1.92G | 2.133 us | 2.133 us | 2.133 us | memory |
+| AlexNet | Arduino Nicla Vision | classifier.3 | Dropout | 0 | 33K | 0.0000 | 0 | 0 s | 2.133 us | 2.133 us | memory |
+| AlexNet | Arduino Nicla Vision | classifier.4 | Linear | 33.6M | 67.2M | 0.4997 | 1.92G | 17.478 ms | 4.372 ms | 17.478 ms | compute |
+| AlexNet | Arduino Nicla Vision | classifier.5 | ReLU | 4K | 33K | 0.1250 | 1.92G | 2.133 us | 2.133 us | 2.133 us | memory |
+| AlexNet | Arduino Nicla Vision | classifier.6 | Linear | 8.2M | 16.4M | 0.4993 | 1.92G | 4.267 ms | 1.068 ms | 4.267 ms | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.0.0 | Conv2d | 21.7M | 2.2M | 9.8028 | 48.00G | 451.584 us | 86.375 us | 451.584 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.0.1 | BatchNorm | 803K | 3.2M | 0.2500 | 6.40G | 125.450 us | 125.450 us | 125.450 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.0.2 | ReLU | 401K | 3.2M | 0.1250 | 3.20G | 125.440 us | 125.440 us | 125.440 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.1.conv.0.0 | Conv2d | 7.2M | 3.2M | 2.2492 | 48.00G | 150.528 us | 125.485 us | 150.528 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.1.conv.0.1 | BatchNorm | 803K | 3.2M | 0.2500 | 6.40G | 125.450 us | 125.450 us | 125.450 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.1.conv.0.2 | ReLU | 401K | 3.2M | 0.1250 | 3.20G | 125.440 us | 125.440 us | 125.440 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.1.conv.1 | Conv2d | 12.8M | 2.4M | 5.3288 | 48.00G | 267.605 us | 94.160 us | 267.605 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.1.conv.2 | BatchNorm | 401K | 1.6M | 0.2500 | 6.40G | 62.725 us | 62.725 us | 62.725 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.2.conv.0.0 | Conv2d | 38.5M | 5.6M | 6.8497 | 48.00G | 802.816 us | 219.760 us | 802.816 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.2.conv.0.1 | BatchNorm | 2.4M | 9.6M | 0.2500 | 6.40G | 376.350 us | 376.350 us | 376.350 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.2.conv.0.2 | ReLU | 1.2M | 9.6M | 0.1250 | 3.20G | 376.320 us | 376.320 us | 376.320 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.2.conv.1.0 | Conv2d | 5.4M | 6.0M | 0.8995 | 23.03G | 235.335 us | 235.335 us | 235.335 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.2.conv.1.1 | BatchNorm | 602K | 2.4M | 0.2499 | 6.40G | 94.110 us | 94.110 us | 94.110 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.2.conv.1.2 | ReLU | 301K | 2.4M | 0.1250 | 3.20G | 94.080 us | 94.080 us | 94.080 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.2.conv.2 | Conv2d | 14.5M | 1.5M | 9.5416 | 48.00G | 301.056 us | 59.160 us | 301.056 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.2.conv.3 | BatchNorm | 151K | 602K | 0.2499 | 6.40G | 23.527 us | 23.527 us | 23.527 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.3.conv.0.0 | Conv2d | 21.7M | 2.1M | 10.2187 | 48.00G | 451.584 us | 82.860 us | 451.584 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.3.conv.0.1 | BatchNorm | 903K | 3.6M | 0.2499 | 6.40G | 141.165 us | 141.165 us | 141.165 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.3.conv.0.2 | ReLU | 452K | 3.6M | 0.1250 | 3.20G | 141.120 us | 141.120 us | 141.120 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.3.conv.1.0 | Conv2d | 8.1M | 3.6M | 2.2468 | 48.00G | 169.344 us | 141.322 us | 169.344 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.3.conv.1.1 | BatchNorm | 903K | 3.6M | 0.2499 | 6.40G | 141.165 us | 141.165 us | 141.165 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.3.conv.1.2 | ReLU | 452K | 3.6M | 0.1250 | 3.20G | 141.120 us | 141.120 us | 141.120 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.3.conv.2 | Conv2d | 21.7M | 2.1M | 10.2187 | 48.00G | 451.584 us | 82.860 us | 451.584 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.3.conv.3 | BatchNorm | 151K | 602K | 0.2499 | 6.40G | 23.527 us | 23.527 us | 23.527 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.4.conv.0.0 | Conv2d | 21.7M | 2.1M | 10.2187 | 48.00G | 451.584 us | 82.860 us | 451.584 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.4.conv.0.1 | BatchNorm | 903K | 3.6M | 0.2499 | 6.40G | 141.165 us | 141.165 us | 141.165 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.4.conv.0.2 | ReLU | 452K | 3.6M | 0.1250 | 3.20G | 141.120 us | 141.120 us | 141.120 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.4.conv.1.0 | Conv2d | 2.0M | 2.3M | 0.8979 | 22.99G | 88.403 us | 88.403 us | 88.403 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.4.conv.1.1 | BatchNorm | 226K | 904K | 0.2497 | 6.39G | 35.325 us | 35.325 us | 35.325 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.4.conv.1.2 | ReLU | 113K | 903K | 0.1250 | 3.20G | 35.280 us | 35.280 us | 35.280 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.4.conv.2 | Conv2d | 7.2M | 570K | 12.6679 | 48.00G | 150.528 us | 22.280 us | 150.528 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.4.conv.3 | BatchNorm | 50K | 201K | 0.2497 | 6.39G | 7.850 us | 7.850 us | 7.850 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.5.conv.0.0 | Conv2d | 9.6M | 727K | 13.2507 | 48.00G | 200.704 us | 28.400 us | 200.704 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.5.conv.0.1 | BatchNorm | 301K | 1.2M | 0.2497 | 6.39G | 47.100 us | 47.100 us | 47.100 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.5.conv.0.2 | ReLU | 151K | 1.2M | 0.1250 | 3.20G | 47.040 us | 47.040 us | 47.040 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.5.conv.1.0 | Conv2d | 2.7M | 1.2M | 2.2372 | 48.00G | 56.448 us | 47.310 us | 56.448 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.5.conv.1.1 | BatchNorm | 301K | 1.2M | 0.2497 | 6.39G | 47.100 us | 47.100 us | 47.100 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.5.conv.1.2 | ReLU | 151K | 1.2M | 0.1250 | 3.20G | 47.040 us | 47.040 us | 47.040 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.5.conv.2 | Conv2d | 9.6M | 727K | 13.2507 | 48.00G | 200.704 us | 28.400 us | 200.704 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.5.conv.3 | BatchNorm | 50K | 201K | 0.2497 | 6.39G | 7.850 us | 7.850 us | 7.850 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.6.conv.0.0 | Conv2d | 9.6M | 727K | 13.2507 | 48.00G | 200.704 us | 28.400 us | 200.704 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.6.conv.0.1 | BatchNorm | 301K | 1.2M | 0.2497 | 6.39G | 47.100 us | 47.100 us | 47.100 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.6.conv.0.2 | ReLU | 151K | 1.2M | 0.1250 | 3.20G | 47.040 us | 47.040 us | 47.040 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.6.conv.1.0 | Conv2d | 2.7M | 1.2M | 2.2372 | 48.00G | 56.448 us | 47.310 us | 56.448 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.6.conv.1.1 | BatchNorm | 301K | 1.2M | 0.2497 | 6.39G | 47.100 us | 47.100 us | 47.100 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.6.conv.1.2 | ReLU | 151K | 1.2M | 0.1250 | 3.20G | 47.040 us | 47.040 us | 47.040 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.6.conv.2 | Conv2d | 9.6M | 727K | 13.2507 | 48.00G | 200.704 us | 28.400 us | 200.704 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.6.conv.3 | BatchNorm | 50K | 201K | 0.2497 | 6.39G | 7.850 us | 7.850 us | 7.850 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.7.conv.0.0 | Conv2d | 9.6M | 727K | 13.2507 | 48.00G | 200.704 us | 28.400 us | 200.704 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.7.conv.0.1 | BatchNorm | 301K | 1.2M | 0.2497 | 6.39G | 47.100 us | 47.100 us | 47.100 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.7.conv.0.2 | ReLU | 151K | 1.2M | 0.1250 | 3.20G | 47.040 us | 47.040 us | 47.040 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.7.conv.1.0 | Conv2d | 677K | 760K | 0.8918 | 22.83G | 29.670 us | 29.670 us | 29.670 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.7.conv.1.1 | BatchNorm | 75K | 303K | 0.2487 | 6.37G | 11.820 us | 11.820 us | 11.820 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.7.conv.1.2 | ReLU | 38K | 301K | 0.1250 | 3.20G | 11.760 us | 11.760 us | 11.760 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.7.conv.2 | Conv2d | 4.8M | 250K | 19.2787 | 48.00G | 100.352 us | 9.760 us | 100.352 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.7.conv.3 | BatchNorm | 25K | 101K | 0.2487 | 6.37G | 3.940 us | 3.940 us | 3.940 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.8.conv.0.0 | Conv2d | 9.6M | 450K | 21.4305 | 48.00G | 200.704 us | 17.560 us | 200.704 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.8.conv.0.1 | BatchNorm | 151K | 605K | 0.2487 | 6.37G | 23.640 us | 23.640 us | 23.640 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.8.conv.0.2 | ReLU | 75K | 602K | 0.1250 | 3.20G | 23.520 us | 23.520 us | 23.520 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.8.conv.1.0 | Conv2d | 1.4M | 616K | 2.1995 | 48.00G | 28.224 us | 24.060 us | 28.224 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.8.conv.1.1 | BatchNorm | 151K | 605K | 0.2487 | 6.37G | 23.640 us | 23.640 us | 23.640 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.8.conv.1.2 | ReLU | 75K | 602K | 0.1250 | 3.20G | 23.520 us | 23.520 us | 23.520 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.8.conv.2 | Conv2d | 9.6M | 450K | 21.4305 | 48.00G | 200.704 us | 17.560 us | 200.704 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.8.conv.3 | BatchNorm | 25K | 101K | 0.2487 | 6.37G | 3.940 us | 3.940 us | 3.940 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.9.conv.0.0 | Conv2d | 9.6M | 450K | 21.4305 | 48.00G | 200.704 us | 17.560 us | 200.704 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.9.conv.0.1 | BatchNorm | 151K | 605K | 0.2487 | 6.37G | 23.640 us | 23.640 us | 23.640 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.9.conv.0.2 | ReLU | 75K | 602K | 0.1250 | 3.20G | 23.520 us | 23.520 us | 23.520 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.9.conv.1.0 | Conv2d | 1.4M | 616K | 2.1995 | 48.00G | 28.224 us | 24.060 us | 28.224 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.9.conv.1.1 | BatchNorm | 151K | 605K | 0.2487 | 6.37G | 23.640 us | 23.640 us | 23.640 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.9.conv.1.2 | ReLU | 75K | 602K | 0.1250 | 3.20G | 23.520 us | 23.520 us | 23.520 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.9.conv.2 | Conv2d | 9.6M | 450K | 21.4305 | 48.00G | 200.704 us | 17.560 us | 200.704 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.9.conv.3 | BatchNorm | 25K | 101K | 0.2487 | 6.37G | 3.940 us | 3.940 us | 3.940 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.10.conv.0.0 | Conv2d | 9.6M | 450K | 21.4305 | 48.00G | 200.704 us | 17.560 us | 200.704 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.10.conv.0.1 | BatchNorm | 151K | 605K | 0.2487 | 6.37G | 23.640 us | 23.640 us | 23.640 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.10.conv.0.2 | ReLU | 75K | 602K | 0.1250 | 3.20G | 23.520 us | 23.520 us | 23.520 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.10.conv.1.0 | Conv2d | 1.4M | 616K | 2.1995 | 48.00G | 28.224 us | 24.060 us | 28.224 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.10.conv.1.1 | BatchNorm | 151K | 605K | 0.2487 | 6.37G | 23.640 us | 23.640 us | 23.640 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.10.conv.1.2 | ReLU | 75K | 602K | 0.1250 | 3.20G | 23.520 us | 23.520 us | 23.520 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.10.conv.2 | Conv2d | 9.6M | 450K | 21.4305 | 48.00G | 200.704 us | 17.560 us | 200.704 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.10.conv.3 | BatchNorm | 25K | 101K | 0.2487 | 6.37G | 3.940 us | 3.940 us | 3.940 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.11.conv.0.0 | Conv2d | 9.6M | 450K | 21.4305 | 48.00G | 200.704 us | 17.560 us | 200.704 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.11.conv.0.1 | BatchNorm | 151K | 605K | 0.2487 | 6.37G | 23.640 us | 23.640 us | 23.640 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.11.conv.0.2 | ReLU | 75K | 602K | 0.1250 | 3.20G | 23.520 us | 23.520 us | 23.520 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.11.conv.1.0 | Conv2d | 1.4M | 616K | 2.1995 | 48.00G | 28.224 us | 24.060 us | 28.224 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.11.conv.1.1 | BatchNorm | 151K | 605K | 0.2487 | 6.37G | 23.640 us | 23.640 us | 23.640 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.11.conv.1.2 | ReLU | 75K | 602K | 0.1250 | 3.20G | 23.520 us | 23.520 us | 23.520 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.11.conv.2 | Conv2d | 14.5M | 524K | 27.5894 | 48.00G | 301.056 us | 20.460 us | 301.056 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.11.conv.3 | BatchNorm | 38K | 151K | 0.2487 | 6.37G | 5.910 us | 5.910 us | 5.910 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.12.conv.0.0 | Conv2d | 21.7M | 748K | 28.9774 | 48.00G | 451.584 us | 29.220 us | 451.584 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.12.conv.0.1 | BatchNorm | 226K | 908K | 0.2487 | 6.37G | 35.460 us | 35.460 us | 35.460 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.12.conv.0.2 | ReLU | 113K | 903K | 0.1250 | 3.20G | 35.280 us | 35.280 us | 35.280 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.12.conv.1.0 | Conv2d | 2.0M | 924K | 2.1995 | 48.00G | 42.336 us | 36.090 us | 42.336 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.12.conv.1.1 | BatchNorm | 226K | 908K | 0.2487 | 6.37G | 35.460 us | 35.460 us | 35.460 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.12.conv.1.2 | ReLU | 113K | 903K | 0.1250 | 3.20G | 35.280 us | 35.280 us | 35.280 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.12.conv.2 | Conv2d | 21.7M | 748K | 28.9774 | 48.00G | 451.584 us | 29.220 us | 451.584 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.12.conv.3 | BatchNorm | 38K | 151K | 0.2487 | 6.37G | 5.910 us | 5.910 us | 5.910 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.13.conv.0.0 | Conv2d | 21.7M | 748K | 28.9774 | 48.00G | 451.584 us | 29.220 us | 451.584 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.13.conv.0.1 | BatchNorm | 226K | 908K | 0.2487 | 6.37G | 35.460 us | 35.460 us | 35.460 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.13.conv.0.2 | ReLU | 113K | 903K | 0.1250 | 3.20G | 35.280 us | 35.280 us | 35.280 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.13.conv.1.0 | Conv2d | 2.0M | 924K | 2.1995 | 48.00G | 42.336 us | 36.090 us | 42.336 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.13.conv.1.1 | BatchNorm | 226K | 908K | 0.2487 | 6.37G | 35.460 us | 35.460 us | 35.460 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.13.conv.1.2 | ReLU | 113K | 903K | 0.1250 | 3.20G | 35.280 us | 35.280 us | 35.280 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.13.conv.2 | Conv2d | 21.7M | 748K | 28.9774 | 48.00G | 451.584 us | 29.220 us | 451.584 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.13.conv.3 | BatchNorm | 38K | 151K | 0.2487 | 6.37G | 5.910 us | 5.910 us | 5.910 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.14.conv.0.0 | Conv2d | 21.7M | 748K | 28.9774 | 48.00G | 451.584 us | 29.220 us | 451.584 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.14.conv.0.1 | BatchNorm | 226K | 908K | 0.2487 | 6.37G | 35.460 us | 35.460 us | 35.460 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.14.conv.0.2 | ReLU | 113K | 903K | 0.1250 | 3.20G | 35.280 us | 35.280 us | 35.280 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.14.conv.1.0 | Conv2d | 508K | 585K | 0.8681 | 22.22G | 22.860 us | 22.860 us | 22.860 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.14.conv.1.1 | BatchNorm | 56K | 230K | 0.2450 | 6.27G | 9.000 us | 9.000 us | 9.000 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.14.conv.1.2 | ReLU | 28K | 226K | 0.1250 | 3.20G | 8.820 us | 8.820 us | 8.820 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.14.conv.2 | Conv2d | 9.0M | 513K | 17.6092 | 48.00G | 188.160 us | 20.035 us | 188.160 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.14.conv.3 | BatchNorm | 16K | 64K | 0.2450 | 6.27G | 2.500 us | 2.500 us | 2.500 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.15.conv.0.0 | Conv2d | 15.1M | 834K | 18.0507 | 48.00G | 313.600 us | 32.575 us | 313.600 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.15.conv.0.1 | BatchNorm | 94K | 384K | 0.2450 | 6.27G | 15.000 us | 15.000 us | 15.000 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.15.conv.0.2 | ReLU | 47K | 376K | 0.1250 | 3.20G | 14.700 us | 14.700 us | 14.700 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.15.conv.1.0 | Conv2d | 847K | 411K | 2.0607 | 48.00G | 17.640 us | 16.050 us | 17.640 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.15.conv.1.1 | BatchNorm | 94K | 384K | 0.2450 | 6.27G | 15.000 us | 15.000 us | 15.000 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.15.conv.1.2 | ReLU | 47K | 376K | 0.1250 | 3.20G | 14.700 us | 14.700 us | 14.700 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.15.conv.2 | Conv2d | 15.1M | 834K | 18.0507 | 48.00G | 313.600 us | 32.575 us | 313.600 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.15.conv.3 | BatchNorm | 16K | 64K | 0.2450 | 6.27G | 2.500 us | 2.500 us | 2.500 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.16.conv.0.0 | Conv2d | 15.1M | 834K | 18.0507 | 48.00G | 313.600 us | 32.575 us | 313.600 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.16.conv.0.1 | BatchNorm | 94K | 384K | 0.2450 | 6.27G | 15.000 us | 15.000 us | 15.000 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.16.conv.0.2 | ReLU | 47K | 376K | 0.1250 | 3.20G | 14.700 us | 14.700 us | 14.700 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.16.conv.1.0 | Conv2d | 847K | 411K | 2.0607 | 48.00G | 17.640 us | 16.050 us | 17.640 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.16.conv.1.1 | BatchNorm | 94K | 384K | 0.2450 | 6.27G | 15.000 us | 15.000 us | 15.000 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.16.conv.1.2 | ReLU | 47K | 376K | 0.1250 | 3.20G | 14.700 us | 14.700 us | 14.700 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.16.conv.2 | Conv2d | 15.1M | 834K | 18.0507 | 48.00G | 313.600 us | 32.575 us | 313.600 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.16.conv.3 | BatchNorm | 16K | 64K | 0.2450 | 6.27G | 2.500 us | 2.500 us | 2.500 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.17.conv.0.0 | Conv2d | 15.1M | 834K | 18.0507 | 48.00G | 313.600 us | 32.575 us | 313.600 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.17.conv.0.1 | BatchNorm | 94K | 384K | 0.2450 | 6.27G | 15.000 us | 15.000 us | 15.000 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.17.conv.0.2 | ReLU | 47K | 376K | 0.1250 | 3.20G | 14.700 us | 14.700 us | 14.700 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.17.conv.1.0 | Conv2d | 847K | 411K | 2.0607 | 48.00G | 17.640 us | 16.050 us | 17.640 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.17.conv.1.1 | BatchNorm | 94K | 384K | 0.2450 | 6.27G | 15.000 us | 15.000 us | 15.000 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.17.conv.1.2 | ReLU | 47K | 376K | 0.1250 | 3.20G | 14.700 us | 14.700 us | 14.700 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.17.conv.2 | Conv2d | 30.1M | 1.5M | 20.3460 | 48.00G | 627.200 us | 57.800 us | 627.200 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.17.conv.3 | BatchNorm | 31K | 128K | 0.2450 | 6.27G | 5.000 us | 5.000 us | 5.000 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.18.0 | Conv2d | 40.1M | 2.0M | 20.5639 | 48.00G | 836.267 us | 76.250 us | 836.267 us | compute |
+| MobileNetV2 | Raspberry Pi 4 | features.18.1 | BatchNorm | 125K | 512K | 0.2450 | 6.27G | 20.000 us | 20.000 us | 20.000 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | features.18.2 | ReLU | 63K | 502K | 0.1250 | 3.20G | 19.600 us | 19.600 us | 19.600 us | memory |
+| MobileNetV2 | Raspberry Pi 4 | classifier.0 | Dropout | 0 | 10K | 0.0000 | 0 | 0 s | 400.00 ns | 400.00 ns | memory |
+| MobileNetV2 | Raspberry Pi 4 | classifier.1 | Linear | 2.6M | 5.1M | 0.4989 | 12.77G | 200.512 us | 200.512 us | 200.512 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.0.0 | Conv2d | 21.7M | 2.2M | 9.8028 | 38.40G | 564.480 us | 43.188 us | 564.480 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.0.1 | BatchNorm | 803K | 3.2M | 0.2500 | 12.80G | 62.725 us | 62.725 us | 62.725 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.0.2 | ReLU | 401K | 3.2M | 0.1250 | 6.40G | 62.720 us | 62.720 us | 62.720 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.1.conv.0.0 | Conv2d | 7.2M | 3.2M | 2.2492 | 38.40G | 188.160 us | 62.742 us | 188.160 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.1.conv.0.1 | BatchNorm | 803K | 3.2M | 0.2500 | 12.80G | 62.725 us | 62.725 us | 62.725 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.1.conv.0.2 | ReLU | 401K | 3.2M | 0.1250 | 6.40G | 62.720 us | 62.720 us | 62.720 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.1.conv.1 | Conv2d | 12.8M | 2.4M | 5.3288 | 38.40G | 334.507 us | 47.080 us | 334.507 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.1.conv.2 | BatchNorm | 401K | 1.6M | 0.2500 | 12.80G | 31.363 us | 31.363 us | 31.363 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.2.conv.0.0 | Conv2d | 38.5M | 5.6M | 6.8497 | 38.40G | 1.004 ms | 109.880 us | 1.004 ms | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.2.conv.0.1 | BatchNorm | 2.4M | 9.6M | 0.2500 | 12.80G | 188.175 us | 188.175 us | 188.175 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.2.conv.0.2 | ReLU | 1.2M | 9.6M | 0.1250 | 6.40G | 188.160 us | 188.160 us | 188.160 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.2.conv.1.0 | Conv2d | 5.4M | 6.0M | 0.8995 | 38.40G | 141.120 us | 117.668 us | 141.120 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.2.conv.1.1 | BatchNorm | 602K | 2.4M | 0.2499 | 12.80G | 47.055 us | 47.055 us | 47.055 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.2.conv.1.2 | ReLU | 301K | 2.4M | 0.1250 | 6.40G | 47.040 us | 47.040 us | 47.040 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.2.conv.2 | Conv2d | 14.5M | 1.5M | 9.5416 | 38.40G | 376.320 us | 29.580 us | 376.320 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.2.conv.3 | BatchNorm | 151K | 602K | 0.2499 | 12.80G | 11.764 us | 11.764 us | 11.764 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.3.conv.0.0 | Conv2d | 21.7M | 2.1M | 10.2187 | 38.40G | 564.480 us | 41.430 us | 564.480 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.3.conv.0.1 | BatchNorm | 903K | 3.6M | 0.2499 | 12.80G | 70.583 us | 70.583 us | 70.583 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.3.conv.0.2 | ReLU | 452K | 3.6M | 0.1250 | 6.40G | 70.560 us | 70.560 us | 70.560 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.3.conv.1.0 | Conv2d | 8.1M | 3.6M | 2.2468 | 38.40G | 211.680 us | 70.661 us | 211.680 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.3.conv.1.1 | BatchNorm | 903K | 3.6M | 0.2499 | 12.80G | 70.583 us | 70.583 us | 70.583 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.3.conv.1.2 | ReLU | 452K | 3.6M | 0.1250 | 6.40G | 70.560 us | 70.560 us | 70.560 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.3.conv.2 | Conv2d | 21.7M | 2.1M | 10.2187 | 38.40G | 564.480 us | 41.430 us | 564.480 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.3.conv.3 | BatchNorm | 151K | 602K | 0.2499 | 12.80G | 11.764 us | 11.764 us | 11.764 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.4.conv.0.0 | Conv2d | 21.7M | 2.1M | 10.2187 | 38.40G | 564.480 us | 41.430 us | 564.480 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.4.conv.0.1 | BatchNorm | 903K | 3.6M | 0.2499 | 12.80G | 70.583 us | 70.583 us | 70.583 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.4.conv.0.2 | ReLU | 452K | 3.6M | 0.1250 | 6.40G | 70.560 us | 70.560 us | 70.560 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.4.conv.1.0 | Conv2d | 2.0M | 2.3M | 0.8979 | 38.40G | 52.920 us | 44.201 us | 52.920 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.4.conv.1.1 | BatchNorm | 226K | 904K | 0.2497 | 12.78G | 17.662 us | 17.662 us | 17.662 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.4.conv.1.2 | ReLU | 113K | 903K | 0.1250 | 6.40G | 17.640 us | 17.640 us | 17.640 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.4.conv.2 | Conv2d | 7.2M | 570K | 12.6679 | 38.40G | 188.160 us | 11.140 us | 188.160 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.4.conv.3 | BatchNorm | 50K | 201K | 0.2497 | 12.78G | 3.925 us | 3.925 us | 3.925 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.5.conv.0.0 | Conv2d | 9.6M | 727K | 13.2507 | 38.40G | 250.880 us | 14.200 us | 250.880 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.5.conv.0.1 | BatchNorm | 301K | 1.2M | 0.2497 | 12.78G | 23.550 us | 23.550 us | 23.550 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.5.conv.0.2 | ReLU | 151K | 1.2M | 0.1250 | 6.40G | 23.520 us | 23.520 us | 23.520 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.5.conv.1.0 | Conv2d | 2.7M | 1.2M | 2.2372 | 38.40G | 70.560 us | 23.655 us | 70.560 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.5.conv.1.1 | BatchNorm | 301K | 1.2M | 0.2497 | 12.78G | 23.550 us | 23.550 us | 23.550 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.5.conv.1.2 | ReLU | 151K | 1.2M | 0.1250 | 6.40G | 23.520 us | 23.520 us | 23.520 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.5.conv.2 | Conv2d | 9.6M | 727K | 13.2507 | 38.40G | 250.880 us | 14.200 us | 250.880 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.5.conv.3 | BatchNorm | 50K | 201K | 0.2497 | 12.78G | 3.925 us | 3.925 us | 3.925 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.6.conv.0.0 | Conv2d | 9.6M | 727K | 13.2507 | 38.40G | 250.880 us | 14.200 us | 250.880 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.6.conv.0.1 | BatchNorm | 301K | 1.2M | 0.2497 | 12.78G | 23.550 us | 23.550 us | 23.550 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.6.conv.0.2 | ReLU | 151K | 1.2M | 0.1250 | 6.40G | 23.520 us | 23.520 us | 23.520 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.6.conv.1.0 | Conv2d | 2.7M | 1.2M | 2.2372 | 38.40G | 70.560 us | 23.655 us | 70.560 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.6.conv.1.1 | BatchNorm | 301K | 1.2M | 0.2497 | 12.78G | 23.550 us | 23.550 us | 23.550 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.6.conv.1.2 | ReLU | 151K | 1.2M | 0.1250 | 6.40G | 23.520 us | 23.520 us | 23.520 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.6.conv.2 | Conv2d | 9.6M | 727K | 13.2507 | 38.40G | 250.880 us | 14.200 us | 250.880 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.6.conv.3 | BatchNorm | 50K | 201K | 0.2497 | 12.78G | 3.925 us | 3.925 us | 3.925 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.7.conv.0.0 | Conv2d | 9.6M | 727K | 13.2507 | 38.40G | 250.880 us | 14.200 us | 250.880 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.7.conv.0.1 | BatchNorm | 301K | 1.2M | 0.2497 | 12.78G | 23.550 us | 23.550 us | 23.550 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.7.conv.0.2 | ReLU | 151K | 1.2M | 0.1250 | 6.40G | 23.520 us | 23.520 us | 23.520 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.7.conv.1.0 | Conv2d | 677K | 760K | 0.8918 | 38.40G | 17.640 us | 14.835 us | 17.640 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.7.conv.1.1 | BatchNorm | 75K | 303K | 0.2487 | 12.74G | 5.910 us | 5.910 us | 5.910 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.7.conv.1.2 | ReLU | 38K | 301K | 0.1250 | 6.40G | 5.880 us | 5.880 us | 5.880 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.7.conv.2 | Conv2d | 4.8M | 250K | 19.2787 | 38.40G | 125.440 us | 4.880 us | 125.440 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.7.conv.3 | BatchNorm | 25K | 101K | 0.2487 | 12.74G | 1.970 us | 1.970 us | 1.970 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.8.conv.0.0 | Conv2d | 9.6M | 450K | 21.4305 | 38.40G | 250.880 us | 8.780 us | 250.880 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.8.conv.0.1 | BatchNorm | 151K | 605K | 0.2487 | 12.74G | 11.820 us | 11.820 us | 11.820 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.8.conv.0.2 | ReLU | 75K | 602K | 0.1250 | 6.40G | 11.760 us | 11.760 us | 11.760 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.8.conv.1.0 | Conv2d | 1.4M | 616K | 2.1995 | 38.40G | 35.280 us | 12.030 us | 35.280 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.8.conv.1.1 | BatchNorm | 151K | 605K | 0.2487 | 12.74G | 11.820 us | 11.820 us | 11.820 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.8.conv.1.2 | ReLU | 75K | 602K | 0.1250 | 6.40G | 11.760 us | 11.760 us | 11.760 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.8.conv.2 | Conv2d | 9.6M | 450K | 21.4305 | 38.40G | 250.880 us | 8.780 us | 250.880 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.8.conv.3 | BatchNorm | 25K | 101K | 0.2487 | 12.74G | 1.970 us | 1.970 us | 1.970 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.9.conv.0.0 | Conv2d | 9.6M | 450K | 21.4305 | 38.40G | 250.880 us | 8.780 us | 250.880 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.9.conv.0.1 | BatchNorm | 151K | 605K | 0.2487 | 12.74G | 11.820 us | 11.820 us | 11.820 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.9.conv.0.2 | ReLU | 75K | 602K | 0.1250 | 6.40G | 11.760 us | 11.760 us | 11.760 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.9.conv.1.0 | Conv2d | 1.4M | 616K | 2.1995 | 38.40G | 35.280 us | 12.030 us | 35.280 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.9.conv.1.1 | BatchNorm | 151K | 605K | 0.2487 | 12.74G | 11.820 us | 11.820 us | 11.820 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.9.conv.1.2 | ReLU | 75K | 602K | 0.1250 | 6.40G | 11.760 us | 11.760 us | 11.760 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.9.conv.2 | Conv2d | 9.6M | 450K | 21.4305 | 38.40G | 250.880 us | 8.780 us | 250.880 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.9.conv.3 | BatchNorm | 25K | 101K | 0.2487 | 12.74G | 1.970 us | 1.970 us | 1.970 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.10.conv.0.0 | Conv2d | 9.6M | 450K | 21.4305 | 38.40G | 250.880 us | 8.780 us | 250.880 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.10.conv.0.1 | BatchNorm | 151K | 605K | 0.2487 | 12.74G | 11.820 us | 11.820 us | 11.820 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.10.conv.0.2 | ReLU | 75K | 602K | 0.1250 | 6.40G | 11.760 us | 11.760 us | 11.760 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.10.conv.1.0 | Conv2d | 1.4M | 616K | 2.1995 | 38.40G | 35.280 us | 12.030 us | 35.280 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.10.conv.1.1 | BatchNorm | 151K | 605K | 0.2487 | 12.74G | 11.820 us | 11.820 us | 11.820 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.10.conv.1.2 | ReLU | 75K | 602K | 0.1250 | 6.40G | 11.760 us | 11.760 us | 11.760 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.10.conv.2 | Conv2d | 9.6M | 450K | 21.4305 | 38.40G | 250.880 us | 8.780 us | 250.880 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.10.conv.3 | BatchNorm | 25K | 101K | 0.2487 | 12.74G | 1.970 us | 1.970 us | 1.970 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.11.conv.0.0 | Conv2d | 9.6M | 450K | 21.4305 | 38.40G | 250.880 us | 8.780 us | 250.880 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.11.conv.0.1 | BatchNorm | 151K | 605K | 0.2487 | 12.74G | 11.820 us | 11.820 us | 11.820 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.11.conv.0.2 | ReLU | 75K | 602K | 0.1250 | 6.40G | 11.760 us | 11.760 us | 11.760 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.11.conv.1.0 | Conv2d | 1.4M | 616K | 2.1995 | 38.40G | 35.280 us | 12.030 us | 35.280 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.11.conv.1.1 | BatchNorm | 151K | 605K | 0.2487 | 12.74G | 11.820 us | 11.820 us | 11.820 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.11.conv.1.2 | ReLU | 75K | 602K | 0.1250 | 6.40G | 11.760 us | 11.760 us | 11.760 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.11.conv.2 | Conv2d | 14.5M | 524K | 27.5894 | 38.40G | 376.320 us | 10.230 us | 376.320 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.11.conv.3 | BatchNorm | 38K | 151K | 0.2487 | 12.74G | 2.955 us | 2.955 us | 2.955 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.12.conv.0.0 | Conv2d | 21.7M | 748K | 28.9774 | 38.40G | 564.480 us | 14.610 us | 564.480 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.12.conv.0.1 | BatchNorm | 226K | 908K | 0.2487 | 12.74G | 17.730 us | 17.730 us | 17.730 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.12.conv.0.2 | ReLU | 113K | 903K | 0.1250 | 6.40G | 17.640 us | 17.640 us | 17.640 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.12.conv.1.0 | Conv2d | 2.0M | 924K | 2.1995 | 38.40G | 52.920 us | 18.045 us | 52.920 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.12.conv.1.1 | BatchNorm | 226K | 908K | 0.2487 | 12.74G | 17.730 us | 17.730 us | 17.730 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.12.conv.1.2 | ReLU | 113K | 903K | 0.1250 | 6.40G | 17.640 us | 17.640 us | 17.640 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.12.conv.2 | Conv2d | 21.7M | 748K | 28.9774 | 38.40G | 564.480 us | 14.610 us | 564.480 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.12.conv.3 | BatchNorm | 38K | 151K | 0.2487 | 12.74G | 2.955 us | 2.955 us | 2.955 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.13.conv.0.0 | Conv2d | 21.7M | 748K | 28.9774 | 38.40G | 564.480 us | 14.610 us | 564.480 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.13.conv.0.1 | BatchNorm | 226K | 908K | 0.2487 | 12.74G | 17.730 us | 17.730 us | 17.730 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.13.conv.0.2 | ReLU | 113K | 903K | 0.1250 | 6.40G | 17.640 us | 17.640 us | 17.640 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.13.conv.1.0 | Conv2d | 2.0M | 924K | 2.1995 | 38.40G | 52.920 us | 18.045 us | 52.920 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.13.conv.1.1 | BatchNorm | 226K | 908K | 0.2487 | 12.74G | 17.730 us | 17.730 us | 17.730 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.13.conv.1.2 | ReLU | 113K | 903K | 0.1250 | 6.40G | 17.640 us | 17.640 us | 17.640 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.13.conv.2 | Conv2d | 21.7M | 748K | 28.9774 | 38.40G | 564.480 us | 14.610 us | 564.480 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.13.conv.3 | BatchNorm | 38K | 151K | 0.2487 | 12.74G | 2.955 us | 2.955 us | 2.955 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.14.conv.0.0 | Conv2d | 21.7M | 748K | 28.9774 | 38.40G | 564.480 us | 14.610 us | 564.480 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.14.conv.0.1 | BatchNorm | 226K | 908K | 0.2487 | 12.74G | 17.730 us | 17.730 us | 17.730 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.14.conv.0.2 | ReLU | 113K | 903K | 0.1250 | 6.40G | 17.640 us | 17.640 us | 17.640 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.14.conv.1.0 | Conv2d | 508K | 585K | 0.8681 | 38.40G | 13.230 us | 11.430 us | 13.230 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.14.conv.1.1 | BatchNorm | 56K | 230K | 0.2450 | 12.54G | 4.500 us | 4.500 us | 4.500 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.14.conv.1.2 | ReLU | 28K | 226K | 0.1250 | 6.40G | 4.410 us | 4.410 us | 4.410 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.14.conv.2 | Conv2d | 9.0M | 513K | 17.6092 | 38.40G | 235.200 us | 10.018 us | 235.200 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.14.conv.3 | BatchNorm | 16K | 64K | 0.2450 | 12.54G | 1.250 us | 1.250 us | 1.250 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.15.conv.0.0 | Conv2d | 15.1M | 834K | 18.0507 | 38.40G | 392.000 us | 16.287 us | 392.000 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.15.conv.0.1 | BatchNorm | 94K | 384K | 0.2450 | 12.54G | 7.500 us | 7.500 us | 7.500 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.15.conv.0.2 | ReLU | 47K | 376K | 0.1250 | 6.40G | 7.350 us | 7.350 us | 7.350 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.15.conv.1.0 | Conv2d | 847K | 411K | 2.0607 | 38.40G | 22.050 us | 8.025 us | 22.050 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.15.conv.1.1 | BatchNorm | 94K | 384K | 0.2450 | 12.54G | 7.500 us | 7.500 us | 7.500 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.15.conv.1.2 | ReLU | 47K | 376K | 0.1250 | 6.40G | 7.350 us | 7.350 us | 7.350 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.15.conv.2 | Conv2d | 15.1M | 834K | 18.0507 | 38.40G | 392.000 us | 16.287 us | 392.000 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.15.conv.3 | BatchNorm | 16K | 64K | 0.2450 | 12.54G | 1.250 us | 1.250 us | 1.250 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.16.conv.0.0 | Conv2d | 15.1M | 834K | 18.0507 | 38.40G | 392.000 us | 16.287 us | 392.000 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.16.conv.0.1 | BatchNorm | 94K | 384K | 0.2450 | 12.54G | 7.500 us | 7.500 us | 7.500 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.16.conv.0.2 | ReLU | 47K | 376K | 0.1250 | 6.40G | 7.350 us | 7.350 us | 7.350 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.16.conv.1.0 | Conv2d | 847K | 411K | 2.0607 | 38.40G | 22.050 us | 8.025 us | 22.050 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.16.conv.1.1 | BatchNorm | 94K | 384K | 0.2450 | 12.54G | 7.500 us | 7.500 us | 7.500 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.16.conv.1.2 | ReLU | 47K | 376K | 0.1250 | 6.40G | 7.350 us | 7.350 us | 7.350 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.16.conv.2 | Conv2d | 15.1M | 834K | 18.0507 | 38.40G | 392.000 us | 16.287 us | 392.000 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.16.conv.3 | BatchNorm | 16K | 64K | 0.2450 | 12.54G | 1.250 us | 1.250 us | 1.250 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.17.conv.0.0 | Conv2d | 15.1M | 834K | 18.0507 | 38.40G | 392.000 us | 16.287 us | 392.000 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.17.conv.0.1 | BatchNorm | 94K | 384K | 0.2450 | 12.54G | 7.500 us | 7.500 us | 7.500 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.17.conv.0.2 | ReLU | 47K | 376K | 0.1250 | 6.40G | 7.350 us | 7.350 us | 7.350 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.17.conv.1.0 | Conv2d | 847K | 411K | 2.0607 | 38.40G | 22.050 us | 8.025 us | 22.050 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.17.conv.1.1 | BatchNorm | 94K | 384K | 0.2450 | 12.54G | 7.500 us | 7.500 us | 7.500 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.17.conv.1.2 | ReLU | 47K | 376K | 0.1250 | 6.40G | 7.350 us | 7.350 us | 7.350 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.17.conv.2 | Conv2d | 30.1M | 1.5M | 20.3460 | 38.40G | 784.000 us | 28.900 us | 784.000 us | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.17.conv.3 | BatchNorm | 31K | 128K | 0.2450 | 12.54G | 2.500 us | 2.500 us | 2.500 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.18.0 | Conv2d | 40.1M | 2.0M | 20.5639 | 38.40G | 1.045 ms | 38.125 us | 1.045 ms | compute |
+| MobileNetV2 | Raspberry Pi 5 | features.18.1 | BatchNorm | 125K | 512K | 0.2450 | 12.54G | 10.000 us | 10.000 us | 10.000 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | features.18.2 | ReLU | 63K | 502K | 0.1250 | 6.40G | 9.800 us | 9.800 us | 9.800 us | memory |
+| MobileNetV2 | Raspberry Pi 5 | classifier.0 | Dropout | 0 | 10K | 0.0000 | 0 | 0 s | 200.00 ns | 200.00 ns | memory |
+| MobileNetV2 | Raspberry Pi 5 | classifier.1 | Linear | 2.6M | 5.1M | 0.4989 | 25.54G | 100.256 us | 100.256 us | 100.256 us | memory |
+| MobileNetV2 | Apple M4 | features.0.0 | Conv2d | 21.7M | 2.2M | 9.8028 | 1.18T | 18.427 us | 18.427 us | 18.427 us | memory |
+| MobileNetV2 | Apple M4 | features.0.1 | BatchNorm | 803K | 3.2M | 0.2500 | 30.00G | 26.763 us | 26.763 us | 26.763 us | memory |
+| MobileNetV2 | Apple M4 | features.0.2 | ReLU | 401K | 3.2M | 0.1250 | 15.00G | 26.761 us | 26.761 us | 26.761 us | memory |
+| MobileNetV2 | Apple M4 | features.1.conv.0.0 | Conv2d | 7.2M | 3.2M | 2.2492 | 269.90G | 26.770 us | 26.770 us | 26.770 us | memory |
+| MobileNetV2 | Apple M4 | features.1.conv.0.1 | BatchNorm | 803K | 3.2M | 0.2500 | 30.00G | 26.763 us | 26.763 us | 26.763 us | memory |
+| MobileNetV2 | Apple M4 | features.1.conv.0.2 | ReLU | 401K | 3.2M | 0.1250 | 15.00G | 26.761 us | 26.761 us | 26.761 us | memory |
+| MobileNetV2 | Apple M4 | features.1.conv.1 | Conv2d | 12.8M | 2.4M | 5.3288 | 639.46G | 20.087 us | 20.087 us | 20.087 us | memory |
+| MobileNetV2 | Apple M4 | features.1.conv.2 | BatchNorm | 401K | 1.6M | 0.2500 | 30.00G | 13.381 us | 13.381 us | 13.381 us | memory |
+| MobileNetV2 | Apple M4 | features.2.conv.0.0 | Conv2d | 38.5M | 5.6M | 6.8497 | 821.96G | 46.882 us | 46.882 us | 46.882 us | memory |
+| MobileNetV2 | Apple M4 | features.2.conv.0.1 | BatchNorm | 2.4M | 9.6M | 0.2500 | 30.00G | 80.288 us | 80.288 us | 80.288 us | memory |
+| MobileNetV2 | Apple M4 | features.2.conv.0.2 | ReLU | 1.2M | 9.6M | 0.1250 | 15.00G | 80.282 us | 80.282 us | 80.282 us | memory |
+| MobileNetV2 | Apple M4 | features.2.conv.1.0 | Conv2d | 5.4M | 6.0M | 0.8995 | 107.94G | 50.205 us | 50.205 us | 50.205 us | memory |
+| MobileNetV2 | Apple M4 | features.2.conv.1.1 | BatchNorm | 602K | 2.4M | 0.2499 | 29.99G | 20.077 us | 20.077 us | 20.077 us | memory |
+| MobileNetV2 | Apple M4 | features.2.conv.1.2 | ReLU | 301K | 2.4M | 0.1250 | 15.00G | 20.070 us | 20.070 us | 20.070 us | memory |
+| MobileNetV2 | Apple M4 | features.2.conv.2 | Conv2d | 14.5M | 1.5M | 9.5416 | 1.14T | 12.621 us | 12.621 us | 12.621 us | memory |
+| MobileNetV2 | Apple M4 | features.2.conv.3 | BatchNorm | 151K | 602K | 0.2499 | 29.99G | 5.019 us | 5.019 us | 5.019 us | memory |
+| MobileNetV2 | Apple M4 | features.3.conv.0.0 | Conv2d | 21.7M | 2.1M | 10.2187 | 1.23T | 17.677 us | 17.677 us | 17.677 us | memory |
+| MobileNetV2 | Apple M4 | features.3.conv.0.1 | BatchNorm | 903K | 3.6M | 0.2499 | 29.99G | 30.115 us | 30.115 us | 30.115 us | memory |
+| MobileNetV2 | Apple M4 | features.3.conv.0.2 | ReLU | 452K | 3.6M | 0.1250 | 15.00G | 30.106 us | 30.106 us | 30.106 us | memory |
+| MobileNetV2 | Apple M4 | features.3.conv.1.0 | Conv2d | 8.1M | 3.6M | 2.2468 | 269.61G | 30.149 us | 30.149 us | 30.149 us | memory |
+| MobileNetV2 | Apple M4 | features.3.conv.1.1 | BatchNorm | 903K | 3.6M | 0.2499 | 29.99G | 30.115 us | 30.115 us | 30.115 us | memory |
+| MobileNetV2 | Apple M4 | features.3.conv.1.2 | ReLU | 452K | 3.6M | 0.1250 | 15.00G | 30.106 us | 30.106 us | 30.106 us | memory |
+| MobileNetV2 | Apple M4 | features.3.conv.2 | Conv2d | 21.7M | 2.1M | 10.2187 | 1.23T | 17.677 us | 17.677 us | 17.677 us | memory |
+| MobileNetV2 | Apple M4 | features.3.conv.3 | BatchNorm | 151K | 602K | 0.2499 | 29.99G | 5.019 us | 5.019 us | 5.019 us | memory |
+| MobileNetV2 | Apple M4 | features.4.conv.0.0 | Conv2d | 21.7M | 2.1M | 10.2187 | 1.23T | 17.677 us | 17.677 us | 17.677 us | memory |
+| MobileNetV2 | Apple M4 | features.4.conv.0.1 | BatchNorm | 903K | 3.6M | 0.2499 | 29.99G | 30.115 us | 30.115 us | 30.115 us | memory |
+| MobileNetV2 | Apple M4 | features.4.conv.0.2 | ReLU | 452K | 3.6M | 0.1250 | 15.00G | 30.106 us | 30.106 us | 30.106 us | memory |
+| MobileNetV2 | Apple M4 | features.4.conv.1.0 | Conv2d | 2.0M | 2.3M | 0.8979 | 107.75G | 18.859 us | 18.859 us | 18.859 us | memory |
+| MobileNetV2 | Apple M4 | features.4.conv.1.1 | BatchNorm | 226K | 904K | 0.2497 | 29.96G | 7.536 us | 7.536 us | 7.536 us | memory |
+| MobileNetV2 | Apple M4 | features.4.conv.1.2 | ReLU | 113K | 903K | 0.1250 | 15.00G | 7.526 us | 7.526 us | 7.526 us | memory |
+| MobileNetV2 | Apple M4 | features.4.conv.2 | Conv2d | 7.2M | 570K | 12.6679 | 1.52T | 4.753 us | 4.753 us | 4.753 us | memory |
+| MobileNetV2 | Apple M4 | features.4.conv.3 | BatchNorm | 50K | 201K | 0.2497 | 29.96G | 1.675 us | 1.675 us | 1.675 us | memory |
+| MobileNetV2 | Apple M4 | features.5.conv.0.0 | Conv2d | 9.6M | 727K | 13.2507 | 1.59T | 6.059 us | 6.059 us | 6.059 us | memory |
+| MobileNetV2 | Apple M4 | features.5.conv.0.1 | BatchNorm | 301K | 1.2M | 0.2497 | 29.96G | 10.048 us | 10.048 us | 10.048 us | memory |
+| MobileNetV2 | Apple M4 | features.5.conv.0.2 | ReLU | 151K | 1.2M | 0.1250 | 15.00G | 10.035 us | 10.035 us | 10.035 us | memory |
+| MobileNetV2 | Apple M4 | features.5.conv.1.0 | Conv2d | 2.7M | 1.2M | 2.2372 | 268.46G | 10.093 us | 10.093 us | 10.093 us | memory |
+| MobileNetV2 | Apple M4 | features.5.conv.1.1 | BatchNorm | 301K | 1.2M | 0.2497 | 29.96G | 10.048 us | 10.048 us | 10.048 us | memory |
+| MobileNetV2 | Apple M4 | features.5.conv.1.2 | ReLU | 151K | 1.2M | 0.1250 | 15.00G | 10.035 us | 10.035 us | 10.035 us | memory |
+| MobileNetV2 | Apple M4 | features.5.conv.2 | Conv2d | 9.6M | 727K | 13.2507 | 1.59T | 6.059 us | 6.059 us | 6.059 us | memory |
+| MobileNetV2 | Apple M4 | features.5.conv.3 | BatchNorm | 50K | 201K | 0.2497 | 29.96G | 1.675 us | 1.675 us | 1.675 us | memory |
+| MobileNetV2 | Apple M4 | features.6.conv.0.0 | Conv2d | 9.6M | 727K | 13.2507 | 1.59T | 6.059 us | 6.059 us | 6.059 us | memory |
+| MobileNetV2 | Apple M4 | features.6.conv.0.1 | BatchNorm | 301K | 1.2M | 0.2497 | 29.96G | 10.048 us | 10.048 us | 10.048 us | memory |
+| MobileNetV2 | Apple M4 | features.6.conv.0.2 | ReLU | 151K | 1.2M | 0.1250 | 15.00G | 10.035 us | 10.035 us | 10.035 us | memory |
+| MobileNetV2 | Apple M4 | features.6.conv.1.0 | Conv2d | 2.7M | 1.2M | 2.2372 | 268.46G | 10.093 us | 10.093 us | 10.093 us | memory |
+| MobileNetV2 | Apple M4 | features.6.conv.1.1 | BatchNorm | 301K | 1.2M | 0.2497 | 29.96G | 10.048 us | 10.048 us | 10.048 us | memory |
+| MobileNetV2 | Apple M4 | features.6.conv.1.2 | ReLU | 151K | 1.2M | 0.1250 | 15.00G | 10.035 us | 10.035 us | 10.035 us | memory |
+| MobileNetV2 | Apple M4 | features.6.conv.2 | Conv2d | 9.6M | 727K | 13.2507 | 1.59T | 6.059 us | 6.059 us | 6.059 us | memory |
+| MobileNetV2 | Apple M4 | features.6.conv.3 | BatchNorm | 50K | 201K | 0.2497 | 29.96G | 1.675 us | 1.675 us | 1.675 us | memory |
+| MobileNetV2 | Apple M4 | features.7.conv.0.0 | Conv2d | 9.6M | 727K | 13.2507 | 1.59T | 6.059 us | 6.059 us | 6.059 us | memory |
+| MobileNetV2 | Apple M4 | features.7.conv.0.1 | BatchNorm | 301K | 1.2M | 0.2497 | 29.96G | 10.048 us | 10.048 us | 10.048 us | memory |
+| MobileNetV2 | Apple M4 | features.7.conv.0.2 | ReLU | 151K | 1.2M | 0.1250 | 15.00G | 10.035 us | 10.035 us | 10.035 us | memory |
+| MobileNetV2 | Apple M4 | features.7.conv.1.0 | Conv2d | 677K | 760K | 0.8918 | 107.02G | 6.330 us | 6.330 us | 6.330 us | memory |
+| MobileNetV2 | Apple M4 | features.7.conv.1.1 | BatchNorm | 75K | 303K | 0.2487 | 29.85G | 2.522 us | 2.522 us | 2.522 us | memory |
+| MobileNetV2 | Apple M4 | features.7.conv.1.2 | ReLU | 38K | 301K | 0.1250 | 15.00G | 2.509 us | 2.509 us | 2.509 us | memory |
+| MobileNetV2 | Apple M4 | features.7.conv.2 | Conv2d | 4.8M | 250K | 19.2787 | 2.31T | 2.082 us | 2.082 us | 2.082 us | memory |
+| MobileNetV2 | Apple M4 | features.7.conv.3 | BatchNorm | 25K | 101K | 0.2487 | 29.85G | 840.53 ns | 840.53 ns | 840.53 ns | memory |
+| MobileNetV2 | Apple M4 | features.8.conv.0.0 | Conv2d | 9.6M | 450K | 21.4305 | 2.57T | 3.746 us | 3.746 us | 3.746 us | memory |
+| MobileNetV2 | Apple M4 | features.8.conv.0.1 | BatchNorm | 151K | 605K | 0.2487 | 29.85G | 5.043 us | 5.043 us | 5.043 us | memory |
+| MobileNetV2 | Apple M4 | features.8.conv.0.2 | ReLU | 75K | 602K | 0.1250 | 15.00G | 5.018 us | 5.018 us | 5.018 us | memory |
+| MobileNetV2 | Apple M4 | features.8.conv.1.0 | Conv2d | 1.4M | 616K | 2.1995 | 263.94G | 5.133 us | 5.133 us | 5.133 us | memory |
+| MobileNetV2 | Apple M4 | features.8.conv.1.1 | BatchNorm | 151K | 605K | 0.2487 | 29.85G | 5.043 us | 5.043 us | 5.043 us | memory |
+| MobileNetV2 | Apple M4 | features.8.conv.1.2 | ReLU | 75K | 602K | 0.1250 | 15.00G | 5.018 us | 5.018 us | 5.018 us | memory |
+| MobileNetV2 | Apple M4 | features.8.conv.2 | Conv2d | 9.6M | 450K | 21.4305 | 2.57T | 3.746 us | 3.746 us | 3.746 us | memory |
+| MobileNetV2 | Apple M4 | features.8.conv.3 | BatchNorm | 25K | 101K | 0.2487 | 29.85G | 840.53 ns | 840.53 ns | 840.53 ns | memory |
+| MobileNetV2 | Apple M4 | features.9.conv.0.0 | Conv2d | 9.6M | 450K | 21.4305 | 2.57T | 3.746 us | 3.746 us | 3.746 us | memory |
+| MobileNetV2 | Apple M4 | features.9.conv.0.1 | BatchNorm | 151K | 605K | 0.2487 | 29.85G | 5.043 us | 5.043 us | 5.043 us | memory |
+| MobileNetV2 | Apple M4 | features.9.conv.0.2 | ReLU | 75K | 602K | 0.1250 | 15.00G | 5.018 us | 5.018 us | 5.018 us | memory |
+| MobileNetV2 | Apple M4 | features.9.conv.1.0 | Conv2d | 1.4M | 616K | 2.1995 | 263.94G | 5.133 us | 5.133 us | 5.133 us | memory |
+| MobileNetV2 | Apple M4 | features.9.conv.1.1 | BatchNorm | 151K | 605K | 0.2487 | 29.85G | 5.043 us | 5.043 us | 5.043 us | memory |
+| MobileNetV2 | Apple M4 | features.9.conv.1.2 | ReLU | 75K | 602K | 0.1250 | 15.00G | 5.018 us | 5.018 us | 5.018 us | memory |
+| MobileNetV2 | Apple M4 | features.9.conv.2 | Conv2d | 9.6M | 450K | 21.4305 | 2.57T | 3.746 us | 3.746 us | 3.746 us | memory |
+| MobileNetV2 | Apple M4 | features.9.conv.3 | BatchNorm | 25K | 101K | 0.2487 | 29.85G | 840.53 ns | 840.53 ns | 840.53 ns | memory |
+| MobileNetV2 | Apple M4 | features.10.conv.0.0 | Conv2d | 9.6M | 450K | 21.4305 | 2.57T | 3.746 us | 3.746 us | 3.746 us | memory |
+| MobileNetV2 | Apple M4 | features.10.conv.0.1 | BatchNorm | 151K | 605K | 0.2487 | 29.85G | 5.043 us | 5.043 us | 5.043 us | memory |
+| MobileNetV2 | Apple M4 | features.10.conv.0.2 | ReLU | 75K | 602K | 0.1250 | 15.00G | 5.018 us | 5.018 us | 5.018 us | memory |
+| MobileNetV2 | Apple M4 | features.10.conv.1.0 | Conv2d | 1.4M | 616K | 2.1995 | 263.94G | 5.133 us | 5.133 us | 5.133 us | memory |
+| MobileNetV2 | Apple M4 | features.10.conv.1.1 | BatchNorm | 151K | 605K | 0.2487 | 29.85G | 5.043 us | 5.043 us | 5.043 us | memory |
+| MobileNetV2 | Apple M4 | features.10.conv.1.2 | ReLU | 75K | 602K | 0.1250 | 15.00G | 5.018 us | 5.018 us | 5.018 us | memory |
+| MobileNetV2 | Apple M4 | features.10.conv.2 | Conv2d | 9.6M | 450K | 21.4305 | 2.57T | 3.746 us | 3.746 us | 3.746 us | memory |
+| MobileNetV2 | Apple M4 | features.10.conv.3 | BatchNorm | 25K | 101K | 0.2487 | 29.85G | 840.53 ns | 840.53 ns | 840.53 ns | memory |
+| MobileNetV2 | Apple M4 | features.11.conv.0.0 | Conv2d | 9.6M | 450K | 21.4305 | 2.57T | 3.746 us | 3.746 us | 3.746 us | memory |
+| MobileNetV2 | Apple M4 | features.11.conv.0.1 | BatchNorm | 151K | 605K | 0.2487 | 29.85G | 5.043 us | 5.043 us | 5.043 us | memory |
+| MobileNetV2 | Apple M4 | features.11.conv.0.2 | ReLU | 75K | 602K | 0.1250 | 15.00G | 5.018 us | 5.018 us | 5.018 us | memory |
+| MobileNetV2 | Apple M4 | features.11.conv.1.0 | Conv2d | 1.4M | 616K | 2.1995 | 263.94G | 5.133 us | 5.133 us | 5.133 us | memory |
+| MobileNetV2 | Apple M4 | features.11.conv.1.1 | BatchNorm | 151K | 605K | 0.2487 | 29.85G | 5.043 us | 5.043 us | 5.043 us | memory |
+| MobileNetV2 | Apple M4 | features.11.conv.1.2 | ReLU | 75K | 602K | 0.1250 | 15.00G | 5.018 us | 5.018 us | 5.018 us | memory |
+| MobileNetV2 | Apple M4 | features.11.conv.2 | Conv2d | 14.5M | 524K | 27.5894 | 3.31T | 4.365 us | 4.365 us | 4.365 us | memory |
+| MobileNetV2 | Apple M4 | features.11.conv.3 | BatchNorm | 38K | 151K | 0.2487 | 29.85G | 1.261 us | 1.261 us | 1.261 us | memory |
+| MobileNetV2 | Apple M4 | features.12.conv.0.0 | Conv2d | 21.7M | 748K | 28.9774 | 3.48T | 6.234 us | 6.234 us | 6.234 us | memory |
+| MobileNetV2 | Apple M4 | features.12.conv.0.1 | BatchNorm | 226K | 908K | 0.2487 | 29.85G | 7.565 us | 7.565 us | 7.565 us | memory |
+| MobileNetV2 | Apple M4 | features.12.conv.0.2 | ReLU | 113K | 903K | 0.1250 | 15.00G | 7.526 us | 7.526 us | 7.526 us | memory |
+| MobileNetV2 | Apple M4 | features.12.conv.1.0 | Conv2d | 2.0M | 924K | 2.1995 | 263.94G | 7.699 us | 7.699 us | 7.699 us | memory |
+| MobileNetV2 | Apple M4 | features.12.conv.1.1 | BatchNorm | 226K | 908K | 0.2487 | 29.85G | 7.565 us | 7.565 us | 7.565 us | memory |
+| MobileNetV2 | Apple M4 | features.12.conv.1.2 | ReLU | 113K | 903K | 0.1250 | 15.00G | 7.526 us | 7.526 us | 7.526 us | memory |
+| MobileNetV2 | Apple M4 | features.12.conv.2 | Conv2d | 21.7M | 748K | 28.9774 | 3.48T | 6.234 us | 6.234 us | 6.234 us | memory |
+| MobileNetV2 | Apple M4 | features.12.conv.3 | BatchNorm | 38K | 151K | 0.2487 | 29.85G | 1.261 us | 1.261 us | 1.261 us | memory |
+| MobileNetV2 | Apple M4 | features.13.conv.0.0 | Conv2d | 21.7M | 748K | 28.9774 | 3.48T | 6.234 us | 6.234 us | 6.234 us | memory |
+| MobileNetV2 | Apple M4 | features.13.conv.0.1 | BatchNorm | 226K | 908K | 0.2487 | 29.85G | 7.565 us | 7.565 us | 7.565 us | memory |
+| MobileNetV2 | Apple M4 | features.13.conv.0.2 | ReLU | 113K | 903K | 0.1250 | 15.00G | 7.526 us | 7.526 us | 7.526 us | memory |
+| MobileNetV2 | Apple M4 | features.13.conv.1.0 | Conv2d | 2.0M | 924K | 2.1995 | 263.94G | 7.699 us | 7.699 us | 7.699 us | memory |
+| MobileNetV2 | Apple M4 | features.13.conv.1.1 | BatchNorm | 226K | 908K | 0.2487 | 29.85G | 7.565 us | 7.565 us | 7.565 us | memory |
+| MobileNetV2 | Apple M4 | features.13.conv.1.2 | ReLU | 113K | 903K | 0.1250 | 15.00G | 7.526 us | 7.526 us | 7.526 us | memory |
+| MobileNetV2 | Apple M4 | features.13.conv.2 | Conv2d | 21.7M | 748K | 28.9774 | 3.48T | 6.234 us | 6.234 us | 6.234 us | memory |
+| MobileNetV2 | Apple M4 | features.13.conv.3 | BatchNorm | 38K | 151K | 0.2487 | 29.85G | 1.261 us | 1.261 us | 1.261 us | memory |
+| MobileNetV2 | Apple M4 | features.14.conv.0.0 | Conv2d | 21.7M | 748K | 28.9774 | 3.48T | 6.234 us | 6.234 us | 6.234 us | memory |
+| MobileNetV2 | Apple M4 | features.14.conv.0.1 | BatchNorm | 226K | 908K | 0.2487 | 29.85G | 7.565 us | 7.565 us | 7.565 us | memory |
+| MobileNetV2 | Apple M4 | features.14.conv.0.2 | ReLU | 113K | 903K | 0.1250 | 15.00G | 7.526 us | 7.526 us | 7.526 us | memory |
+| MobileNetV2 | Apple M4 | features.14.conv.1.0 | Conv2d | 508K | 585K | 0.8681 | 104.17G | 4.877 us | 4.877 us | 4.877 us | memory |
+| MobileNetV2 | Apple M4 | features.14.conv.1.1 | BatchNorm | 56K | 230K | 0.2450 | 29.40G | 1.920 us | 1.920 us | 1.920 us | memory |
+| MobileNetV2 | Apple M4 | features.14.conv.1.2 | ReLU | 28K | 226K | 0.1250 | 15.00G | 1.882 us | 1.882 us | 1.882 us | memory |
+| MobileNetV2 | Apple M4 | features.14.conv.2 | Conv2d | 9.0M | 513K | 17.6092 | 2.11T | 4.274 us | 4.274 us | 4.274 us | memory |
+| MobileNetV2 | Apple M4 | features.14.conv.3 | BatchNorm | 16K | 64K | 0.2450 | 29.40G | 533.33 ns | 533.33 ns | 533.33 ns | memory |
+| MobileNetV2 | Apple M4 | features.15.conv.0.0 | Conv2d | 15.1M | 834K | 18.0507 | 2.17T | 6.949 us | 6.949 us | 6.949 us | memory |
+| MobileNetV2 | Apple M4 | features.15.conv.0.1 | BatchNorm | 94K | 384K | 0.2450 | 29.40G | 3.200 us | 3.200 us | 3.200 us | memory |
+| MobileNetV2 | Apple M4 | features.15.conv.0.2 | ReLU | 47K | 376K | 0.1250 | 15.00G | 3.136 us | 3.136 us | 3.136 us | memory |
+| MobileNetV2 | Apple M4 | features.15.conv.1.0 | Conv2d | 847K | 411K | 2.0607 | 247.29G | 3.424 us | 3.424 us | 3.424 us | memory |
+| MobileNetV2 | Apple M4 | features.15.conv.1.1 | BatchNorm | 94K | 384K | 0.2450 | 29.40G | 3.200 us | 3.200 us | 3.200 us | memory |
+| MobileNetV2 | Apple M4 | features.15.conv.1.2 | ReLU | 47K | 376K | 0.1250 | 15.00G | 3.136 us | 3.136 us | 3.136 us | memory |
+| MobileNetV2 | Apple M4 | features.15.conv.2 | Conv2d | 15.1M | 834K | 18.0507 | 2.17T | 6.949 us | 6.949 us | 6.949 us | memory |
+| MobileNetV2 | Apple M4 | features.15.conv.3 | BatchNorm | 16K | 64K | 0.2450 | 29.40G | 533.33 ns | 533.33 ns | 533.33 ns | memory |
+| MobileNetV2 | Apple M4 | features.16.conv.0.0 | Conv2d | 15.1M | 834K | 18.0507 | 2.17T | 6.949 us | 6.949 us | 6.949 us | memory |
+| MobileNetV2 | Apple M4 | features.16.conv.0.1 | BatchNorm | 94K | 384K | 0.2450 | 29.40G | 3.200 us | 3.200 us | 3.200 us | memory |
+| MobileNetV2 | Apple M4 | features.16.conv.0.2 | ReLU | 47K | 376K | 0.1250 | 15.00G | 3.136 us | 3.136 us | 3.136 us | memory |
+| MobileNetV2 | Apple M4 | features.16.conv.1.0 | Conv2d | 847K | 411K | 2.0607 | 247.29G | 3.424 us | 3.424 us | 3.424 us | memory |
+| MobileNetV2 | Apple M4 | features.16.conv.1.1 | BatchNorm | 94K | 384K | 0.2450 | 29.40G | 3.200 us | 3.200 us | 3.200 us | memory |
+| MobileNetV2 | Apple M4 | features.16.conv.1.2 | ReLU | 47K | 376K | 0.1250 | 15.00G | 3.136 us | 3.136 us | 3.136 us | memory |
+| MobileNetV2 | Apple M4 | features.16.conv.2 | Conv2d | 15.1M | 834K | 18.0507 | 2.17T | 6.949 us | 6.949 us | 6.949 us | memory |
+| MobileNetV2 | Apple M4 | features.16.conv.3 | BatchNorm | 16K | 64K | 0.2450 | 29.40G | 533.33 ns | 533.33 ns | 533.33 ns | memory |
+| MobileNetV2 | Apple M4 | features.17.conv.0.0 | Conv2d | 15.1M | 834K | 18.0507 | 2.17T | 6.949 us | 6.949 us | 6.949 us | memory |
+| MobileNetV2 | Apple M4 | features.17.conv.0.1 | BatchNorm | 94K | 384K | 0.2450 | 29.40G | 3.200 us | 3.200 us | 3.200 us | memory |
+| MobileNetV2 | Apple M4 | features.17.conv.0.2 | ReLU | 47K | 376K | 0.1250 | 15.00G | 3.136 us | 3.136 us | 3.136 us | memory |
+| MobileNetV2 | Apple M4 | features.17.conv.1.0 | Conv2d | 847K | 411K | 2.0607 | 247.29G | 3.424 us | 3.424 us | 3.424 us | memory |
+| MobileNetV2 | Apple M4 | features.17.conv.1.1 | BatchNorm | 94K | 384K | 0.2450 | 29.40G | 3.200 us | 3.200 us | 3.200 us | memory |
+| MobileNetV2 | Apple M4 | features.17.conv.1.2 | ReLU | 47K | 376K | 0.1250 | 15.00G | 3.136 us | 3.136 us | 3.136 us | memory |
+| MobileNetV2 | Apple M4 | features.17.conv.2 | Conv2d | 30.1M | 1.5M | 20.3460 | 2.44T | 12.331 us | 12.331 us | 12.331 us | memory |
+| MobileNetV2 | Apple M4 | features.17.conv.3 | BatchNorm | 31K | 128K | 0.2450 | 29.40G | 1.067 us | 1.067 us | 1.067 us | memory |
+| MobileNetV2 | Apple M4 | features.18.0 | Conv2d | 40.1M | 2.0M | 20.5639 | 2.47T | 16.267 us | 16.267 us | 16.267 us | memory |
+| MobileNetV2 | Apple M4 | features.18.1 | BatchNorm | 125K | 512K | 0.2450 | 29.40G | 4.267 us | 4.267 us | 4.267 us | memory |
+| MobileNetV2 | Apple M4 | features.18.2 | ReLU | 63K | 502K | 0.1250 | 15.00G | 4.181 us | 4.181 us | 4.181 us | memory |
+| MobileNetV2 | Apple M4 | classifier.0 | Dropout | 0 | 10K | 0.0000 | 0 | 0 s | 85.33 ns | 85.33 ns | memory |
+| MobileNetV2 | Apple M4 | classifier.1 | Linear | 2.6M | 5.1M | 0.4989 | 59.87G | 42.776 us | 42.776 us | 42.776 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.0.0 | Conv2d | 21.7M | 2.2M | 9.8028 | 1.92G | 11.290 ms | 143.958 us | 11.290 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.0.1 | BatchNorm | 803K | 3.2M | 0.2500 | 1.92G | 418.133 us | 209.083 us | 418.133 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.0.2 | ReLU | 401K | 3.2M | 0.1250 | 1.92G | 209.067 us | 209.067 us | 209.067 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.1.conv.0.0 | Conv2d | 7.2M | 3.2M | 2.2492 | 1.92G | 3.763 ms | 209.142 us | 3.763 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.1.conv.0.1 | BatchNorm | 803K | 3.2M | 0.2500 | 1.92G | 418.133 us | 209.083 us | 418.133 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.1.conv.0.2 | ReLU | 401K | 3.2M | 0.1250 | 1.92G | 209.067 us | 209.067 us | 209.067 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.1.conv.1 | Conv2d | 12.8M | 2.4M | 5.3288 | 1.92G | 6.690 ms | 156.933 us | 6.690 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.1.conv.2 | BatchNorm | 401K | 1.6M | 0.2500 | 1.92G | 209.067 us | 104.542 us | 209.067 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.2.conv.0.0 | Conv2d | 38.5M | 5.6M | 6.8497 | 1.92G | 20.070 ms | 366.267 us | 20.070 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.2.conv.0.1 | BatchNorm | 2.4M | 9.6M | 0.2500 | 1.92G | 1.254 ms | 627.250 us | 1.254 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.2.conv.0.2 | ReLU | 1.2M | 9.6M | 0.1250 | 1.92G | 627.200 us | 627.200 us | 627.200 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.2.conv.1.0 | Conv2d | 5.4M | 6.0M | 0.8995 | 1.92G | 2.822 ms | 392.225 us | 2.822 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.2.conv.1.1 | BatchNorm | 602K | 2.4M | 0.2499 | 1.92G | 313.600 us | 156.850 us | 313.600 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.2.conv.1.2 | ReLU | 301K | 2.4M | 0.1250 | 1.92G | 156.800 us | 156.800 us | 156.800 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.2.conv.2 | Conv2d | 14.5M | 1.5M | 9.5416 | 1.92G | 7.526 ms | 98.600 us | 7.526 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.2.conv.3 | BatchNorm | 151K | 602K | 0.2499 | 1.92G | 78.400 us | 39.212 us | 78.400 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.3.conv.0.0 | Conv2d | 21.7M | 2.1M | 10.2187 | 1.92G | 11.290 ms | 138.100 us | 11.290 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.3.conv.0.1 | BatchNorm | 903K | 3.6M | 0.2499 | 1.92G | 470.400 us | 235.275 us | 470.400 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.3.conv.0.2 | ReLU | 452K | 3.6M | 0.1250 | 1.92G | 235.200 us | 235.200 us | 235.200 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.3.conv.1.0 | Conv2d | 8.1M | 3.6M | 2.2468 | 1.92G | 4.234 ms | 235.537 us | 4.234 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.3.conv.1.1 | BatchNorm | 903K | 3.6M | 0.2499 | 1.92G | 470.400 us | 235.275 us | 470.400 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.3.conv.1.2 | ReLU | 452K | 3.6M | 0.1250 | 1.92G | 235.200 us | 235.200 us | 235.200 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.3.conv.2 | Conv2d | 21.7M | 2.1M | 10.2187 | 1.92G | 11.290 ms | 138.100 us | 11.290 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.3.conv.3 | BatchNorm | 151K | 602K | 0.2499 | 1.92G | 78.400 us | 39.212 us | 78.400 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.4.conv.0.0 | Conv2d | 21.7M | 2.1M | 10.2187 | 1.92G | 11.290 ms | 138.100 us | 11.290 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.4.conv.0.1 | BatchNorm | 903K | 3.6M | 0.2499 | 1.92G | 470.400 us | 235.275 us | 470.400 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.4.conv.0.2 | ReLU | 452K | 3.6M | 0.1250 | 1.92G | 235.200 us | 235.200 us | 235.200 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.4.conv.1.0 | Conv2d | 2.0M | 2.3M | 0.8979 | 1.92G | 1.058 ms | 147.338 us | 1.058 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.4.conv.1.1 | BatchNorm | 226K | 904K | 0.2497 | 1.92G | 117.600 us | 58.875 us | 117.600 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.4.conv.1.2 | ReLU | 113K | 903K | 0.1250 | 1.92G | 58.800 us | 58.800 us | 58.800 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.4.conv.2 | Conv2d | 7.2M | 570K | 12.6679 | 1.92G | 3.763 ms | 37.133 us | 3.763 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.4.conv.3 | BatchNorm | 50K | 201K | 0.2497 | 1.92G | 26.133 us | 13.083 us | 26.133 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.5.conv.0.0 | Conv2d | 9.6M | 727K | 13.2507 | 1.92G | 5.018 ms | 47.333 us | 5.018 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.5.conv.0.1 | BatchNorm | 301K | 1.2M | 0.2497 | 1.92G | 156.800 us | 78.500 us | 156.800 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.5.conv.0.2 | ReLU | 151K | 1.2M | 0.1250 | 1.92G | 78.400 us | 78.400 us | 78.400 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.5.conv.1.0 | Conv2d | 2.7M | 1.2M | 2.2372 | 1.92G | 1.411 ms | 78.850 us | 1.411 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.5.conv.1.1 | BatchNorm | 301K | 1.2M | 0.2497 | 1.92G | 156.800 us | 78.500 us | 156.800 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.5.conv.1.2 | ReLU | 151K | 1.2M | 0.1250 | 1.92G | 78.400 us | 78.400 us | 78.400 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.5.conv.2 | Conv2d | 9.6M | 727K | 13.2507 | 1.92G | 5.018 ms | 47.333 us | 5.018 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.5.conv.3 | BatchNorm | 50K | 201K | 0.2497 | 1.92G | 26.133 us | 13.083 us | 26.133 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.6.conv.0.0 | Conv2d | 9.6M | 727K | 13.2507 | 1.92G | 5.018 ms | 47.333 us | 5.018 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.6.conv.0.1 | BatchNorm | 301K | 1.2M | 0.2497 | 1.92G | 156.800 us | 78.500 us | 156.800 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.6.conv.0.2 | ReLU | 151K | 1.2M | 0.1250 | 1.92G | 78.400 us | 78.400 us | 78.400 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.6.conv.1.0 | Conv2d | 2.7M | 1.2M | 2.2372 | 1.92G | 1.411 ms | 78.850 us | 1.411 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.6.conv.1.1 | BatchNorm | 301K | 1.2M | 0.2497 | 1.92G | 156.800 us | 78.500 us | 156.800 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.6.conv.1.2 | ReLU | 151K | 1.2M | 0.1250 | 1.92G | 78.400 us | 78.400 us | 78.400 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.6.conv.2 | Conv2d | 9.6M | 727K | 13.2507 | 1.92G | 5.018 ms | 47.333 us | 5.018 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.6.conv.3 | BatchNorm | 50K | 201K | 0.2497 | 1.92G | 26.133 us | 13.083 us | 26.133 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.7.conv.0.0 | Conv2d | 9.6M | 727K | 13.2507 | 1.92G | 5.018 ms | 47.333 us | 5.018 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.7.conv.0.1 | BatchNorm | 301K | 1.2M | 0.2497 | 1.92G | 156.800 us | 78.500 us | 156.800 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.7.conv.0.2 | ReLU | 151K | 1.2M | 0.1250 | 1.92G | 78.400 us | 78.400 us | 78.400 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.7.conv.1.0 | Conv2d | 677K | 760K | 0.8918 | 1.92G | 352.800 us | 49.450 us | 352.800 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.7.conv.1.1 | BatchNorm | 75K | 303K | 0.2487 | 1.92G | 39.200 us | 19.700 us | 39.200 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.7.conv.1.2 | ReLU | 38K | 301K | 0.1250 | 1.92G | 19.600 us | 19.600 us | 19.600 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.7.conv.2 | Conv2d | 4.8M | 250K | 19.2787 | 1.92G | 2.509 ms | 16.267 us | 2.509 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.7.conv.3 | BatchNorm | 25K | 101K | 0.2487 | 1.92G | 13.067 us | 6.567 us | 13.067 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.8.conv.0.0 | Conv2d | 9.6M | 450K | 21.4305 | 1.92G | 5.018 ms | 29.267 us | 5.018 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.8.conv.0.1 | BatchNorm | 151K | 605K | 0.2487 | 1.92G | 78.400 us | 39.400 us | 78.400 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.8.conv.0.2 | ReLU | 75K | 602K | 0.1250 | 1.92G | 39.200 us | 39.200 us | 39.200 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.8.conv.1.0 | Conv2d | 1.4M | 616K | 2.1995 | 1.92G | 705.600 us | 40.100 us | 705.600 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.8.conv.1.1 | BatchNorm | 151K | 605K | 0.2487 | 1.92G | 78.400 us | 39.400 us | 78.400 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.8.conv.1.2 | ReLU | 75K | 602K | 0.1250 | 1.92G | 39.200 us | 39.200 us | 39.200 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.8.conv.2 | Conv2d | 9.6M | 450K | 21.4305 | 1.92G | 5.018 ms | 29.267 us | 5.018 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.8.conv.3 | BatchNorm | 25K | 101K | 0.2487 | 1.92G | 13.067 us | 6.567 us | 13.067 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.9.conv.0.0 | Conv2d | 9.6M | 450K | 21.4305 | 1.92G | 5.018 ms | 29.267 us | 5.018 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.9.conv.0.1 | BatchNorm | 151K | 605K | 0.2487 | 1.92G | 78.400 us | 39.400 us | 78.400 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.9.conv.0.2 | ReLU | 75K | 602K | 0.1250 | 1.92G | 39.200 us | 39.200 us | 39.200 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.9.conv.1.0 | Conv2d | 1.4M | 616K | 2.1995 | 1.92G | 705.600 us | 40.100 us | 705.600 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.9.conv.1.1 | BatchNorm | 151K | 605K | 0.2487 | 1.92G | 78.400 us | 39.400 us | 78.400 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.9.conv.1.2 | ReLU | 75K | 602K | 0.1250 | 1.92G | 39.200 us | 39.200 us | 39.200 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.9.conv.2 | Conv2d | 9.6M | 450K | 21.4305 | 1.92G | 5.018 ms | 29.267 us | 5.018 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.9.conv.3 | BatchNorm | 25K | 101K | 0.2487 | 1.92G | 13.067 us | 6.567 us | 13.067 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.10.conv.0.0 | Conv2d | 9.6M | 450K | 21.4305 | 1.92G | 5.018 ms | 29.267 us | 5.018 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.10.conv.0.1 | BatchNorm | 151K | 605K | 0.2487 | 1.92G | 78.400 us | 39.400 us | 78.400 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.10.conv.0.2 | ReLU | 75K | 602K | 0.1250 | 1.92G | 39.200 us | 39.200 us | 39.200 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.10.conv.1.0 | Conv2d | 1.4M | 616K | 2.1995 | 1.92G | 705.600 us | 40.100 us | 705.600 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.10.conv.1.1 | BatchNorm | 151K | 605K | 0.2487 | 1.92G | 78.400 us | 39.400 us | 78.400 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.10.conv.1.2 | ReLU | 75K | 602K | 0.1250 | 1.92G | 39.200 us | 39.200 us | 39.200 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.10.conv.2 | Conv2d | 9.6M | 450K | 21.4305 | 1.92G | 5.018 ms | 29.267 us | 5.018 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.10.conv.3 | BatchNorm | 25K | 101K | 0.2487 | 1.92G | 13.067 us | 6.567 us | 13.067 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.11.conv.0.0 | Conv2d | 9.6M | 450K | 21.4305 | 1.92G | 5.018 ms | 29.267 us | 5.018 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.11.conv.0.1 | BatchNorm | 151K | 605K | 0.2487 | 1.92G | 78.400 us | 39.400 us | 78.400 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.11.conv.0.2 | ReLU | 75K | 602K | 0.1250 | 1.92G | 39.200 us | 39.200 us | 39.200 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.11.conv.1.0 | Conv2d | 1.4M | 616K | 2.1995 | 1.92G | 705.600 us | 40.100 us | 705.600 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.11.conv.1.1 | BatchNorm | 151K | 605K | 0.2487 | 1.92G | 78.400 us | 39.400 us | 78.400 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.11.conv.1.2 | ReLU | 75K | 602K | 0.1250 | 1.92G | 39.200 us | 39.200 us | 39.200 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.11.conv.2 | Conv2d | 14.5M | 524K | 27.5894 | 1.92G | 7.526 ms | 34.100 us | 7.526 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.11.conv.3 | BatchNorm | 38K | 151K | 0.2487 | 1.92G | 19.600 us | 9.850 us | 19.600 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.12.conv.0.0 | Conv2d | 21.7M | 748K | 28.9774 | 1.92G | 11.290 ms | 48.700 us | 11.290 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.12.conv.0.1 | BatchNorm | 226K | 908K | 0.2487 | 1.92G | 117.600 us | 59.100 us | 117.600 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.12.conv.0.2 | ReLU | 113K | 903K | 0.1250 | 1.92G | 58.800 us | 58.800 us | 58.800 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.12.conv.1.0 | Conv2d | 2.0M | 924K | 2.1995 | 1.92G | 1.058 ms | 60.150 us | 1.058 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.12.conv.1.1 | BatchNorm | 226K | 908K | 0.2487 | 1.92G | 117.600 us | 59.100 us | 117.600 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.12.conv.1.2 | ReLU | 113K | 903K | 0.1250 | 1.92G | 58.800 us | 58.800 us | 58.800 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.12.conv.2 | Conv2d | 21.7M | 748K | 28.9774 | 1.92G | 11.290 ms | 48.700 us | 11.290 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.12.conv.3 | BatchNorm | 38K | 151K | 0.2487 | 1.92G | 19.600 us | 9.850 us | 19.600 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.13.conv.0.0 | Conv2d | 21.7M | 748K | 28.9774 | 1.92G | 11.290 ms | 48.700 us | 11.290 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.13.conv.0.1 | BatchNorm | 226K | 908K | 0.2487 | 1.92G | 117.600 us | 59.100 us | 117.600 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.13.conv.0.2 | ReLU | 113K | 903K | 0.1250 | 1.92G | 58.800 us | 58.800 us | 58.800 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.13.conv.1.0 | Conv2d | 2.0M | 924K | 2.1995 | 1.92G | 1.058 ms | 60.150 us | 1.058 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.13.conv.1.1 | BatchNorm | 226K | 908K | 0.2487 | 1.92G | 117.600 us | 59.100 us | 117.600 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.13.conv.1.2 | ReLU | 113K | 903K | 0.1250 | 1.92G | 58.800 us | 58.800 us | 58.800 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.13.conv.2 | Conv2d | 21.7M | 748K | 28.9774 | 1.92G | 11.290 ms | 48.700 us | 11.290 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.13.conv.3 | BatchNorm | 38K | 151K | 0.2487 | 1.92G | 19.600 us | 9.850 us | 19.600 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.14.conv.0.0 | Conv2d | 21.7M | 748K | 28.9774 | 1.92G | 11.290 ms | 48.700 us | 11.290 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.14.conv.0.1 | BatchNorm | 226K | 908K | 0.2487 | 1.92G | 117.600 us | 59.100 us | 117.600 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.14.conv.0.2 | ReLU | 113K | 903K | 0.1250 | 1.92G | 58.800 us | 58.800 us | 58.800 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.14.conv.1.0 | Conv2d | 508K | 585K | 0.8681 | 1.92G | 264.600 us | 38.100 us | 264.600 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.14.conv.1.1 | BatchNorm | 56K | 230K | 0.2450 | 1.92G | 29.400 us | 15.000 us | 29.400 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.14.conv.1.2 | ReLU | 28K | 226K | 0.1250 | 1.92G | 14.700 us | 14.700 us | 14.700 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.14.conv.2 | Conv2d | 9.0M | 513K | 17.6092 | 1.92G | 4.704 ms | 33.392 us | 4.704 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.14.conv.3 | BatchNorm | 16K | 64K | 0.2450 | 1.92G | 8.167 us | 4.167 us | 8.167 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.15.conv.0.0 | Conv2d | 15.1M | 834K | 18.0507 | 1.92G | 7.840 ms | 54.292 us | 7.840 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.15.conv.0.1 | BatchNorm | 94K | 384K | 0.2450 | 1.92G | 49.000 us | 25.000 us | 49.000 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.15.conv.0.2 | ReLU | 47K | 376K | 0.1250 | 1.92G | 24.500 us | 24.500 us | 24.500 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.15.conv.1.0 | Conv2d | 847K | 411K | 2.0607 | 1.92G | 441.000 us | 26.750 us | 441.000 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.15.conv.1.1 | BatchNorm | 94K | 384K | 0.2450 | 1.92G | 49.000 us | 25.000 us | 49.000 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.15.conv.1.2 | ReLU | 47K | 376K | 0.1250 | 1.92G | 24.500 us | 24.500 us | 24.500 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.15.conv.2 | Conv2d | 15.1M | 834K | 18.0507 | 1.92G | 7.840 ms | 54.292 us | 7.840 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.15.conv.3 | BatchNorm | 16K | 64K | 0.2450 | 1.92G | 8.167 us | 4.167 us | 8.167 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.16.conv.0.0 | Conv2d | 15.1M | 834K | 18.0507 | 1.92G | 7.840 ms | 54.292 us | 7.840 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.16.conv.0.1 | BatchNorm | 94K | 384K | 0.2450 | 1.92G | 49.000 us | 25.000 us | 49.000 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.16.conv.0.2 | ReLU | 47K | 376K | 0.1250 | 1.92G | 24.500 us | 24.500 us | 24.500 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.16.conv.1.0 | Conv2d | 847K | 411K | 2.0607 | 1.92G | 441.000 us | 26.750 us | 441.000 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.16.conv.1.1 | BatchNorm | 94K | 384K | 0.2450 | 1.92G | 49.000 us | 25.000 us | 49.000 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.16.conv.1.2 | ReLU | 47K | 376K | 0.1250 | 1.92G | 24.500 us | 24.500 us | 24.500 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.16.conv.2 | Conv2d | 15.1M | 834K | 18.0507 | 1.92G | 7.840 ms | 54.292 us | 7.840 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.16.conv.3 | BatchNorm | 16K | 64K | 0.2450 | 1.92G | 8.167 us | 4.167 us | 8.167 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.17.conv.0.0 | Conv2d | 15.1M | 834K | 18.0507 | 1.92G | 7.840 ms | 54.292 us | 7.840 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.17.conv.0.1 | BatchNorm | 94K | 384K | 0.2450 | 1.92G | 49.000 us | 25.000 us | 49.000 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.17.conv.0.2 | ReLU | 47K | 376K | 0.1250 | 1.92G | 24.500 us | 24.500 us | 24.500 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.17.conv.1.0 | Conv2d | 847K | 411K | 2.0607 | 1.92G | 441.000 us | 26.750 us | 441.000 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.17.conv.1.1 | BatchNorm | 94K | 384K | 0.2450 | 1.92G | 49.000 us | 25.000 us | 49.000 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.17.conv.1.2 | ReLU | 47K | 376K | 0.1250 | 1.92G | 24.500 us | 24.500 us | 24.500 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | features.17.conv.2 | Conv2d | 30.1M | 1.5M | 20.3460 | 1.92G | 15.680 ms | 96.333 us | 15.680 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.17.conv.3 | BatchNorm | 31K | 128K | 0.2450 | 1.92G | 16.333 us | 8.333 us | 16.333 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.18.0 | Conv2d | 40.1M | 2.0M | 20.5639 | 1.92G | 20.907 ms | 127.083 us | 20.907 ms | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.18.1 | BatchNorm | 125K | 512K | 0.2450 | 1.92G | 65.333 us | 33.333 us | 65.333 us | compute |
+| MobileNetV2 | Arduino Nicla Vision | features.18.2 | ReLU | 63K | 502K | 0.1250 | 1.92G | 32.667 us | 32.667 us | 32.667 us | memory |
+| MobileNetV2 | Arduino Nicla Vision | classifier.0 | Dropout | 0 | 10K | 0.0000 | 0 | 0 s | 666.67 ns | 666.67 ns | memory |
+| MobileNetV2 | Arduino Nicla Vision | classifier.1 | Linear | 2.6M | 5.1M | 0.4989 | 1.92G | 1.334 ms | 334.188 us | 1.334 ms | compute |
+| ResNet101 | Raspberry Pi 4 | conv1 | Conv2d | 236.0M | 3.9M | 61.2899 | 48.00G | 4.917 ms | 150.430 us | 4.917 ms | compute |
+| ResNet101 | Raspberry Pi 4 | bn1 | BatchNorm | 1.6M | 6.4M | 0.2500 | 6.40G | 250.900 us | 250.900 us | 250.900 us | memory |
+| ResNet101 | Raspberry Pi 4 | relu | ReLU | 803K | 6.4M | 0.1250 | 3.20G | 250.880 us | 250.880 us | 250.880 us | memory |
+| ResNet101 | Raspberry Pi 4 | maxpool | MaxPool | 803K | 4.0M | 0.2000 | 5.12G | 156.800 us | 156.800 us | 156.800 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer1.0.conv1 | Conv2d | 25.7M | 1.6M | 15.8384 | 48.00G | 535.211 us | 63.360 us | 535.211 us | compute |
+| ResNet101 | Raspberry Pi 4 | layer1.0.bn1 | BatchNorm | 401K | 1.6M | 0.2499 | 6.40G | 62.740 us | 62.740 us | 62.740 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer1.0.relu | ReLU | 803K | 6.4M | 0.1250 | 3.20G | 250.880 us | 250.880 us | 250.880 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer1.0.conv2 | Conv2d | 231.2M | 1.8M | 131.8879 | 48.00G | 4.817 ms | 68.480 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer1.0.bn2 | BatchNorm | 401K | 1.6M | 0.2499 | 6.40G | 62.740 us | 62.740 us | 62.740 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer1.0.relu | ReLU | 803K | 6.4M | 0.1250 | 3.20G | 250.880 us | 250.880 us | 250.880 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer1.0.conv3 | Conv2d | 102.8M | 4.1M | 25.1888 | 48.00G | 2.141 ms | 159.360 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer1.0.bn3 | BatchNorm | 1.6M | 6.4M | 0.2499 | 6.40G | 250.960 us | 250.960 us | 250.960 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer1.0.downsample.0 | Conv2d | 102.8M | 4.1M | 25.1888 | 48.00G | 2.141 ms | 159.360 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer1.0.downsample.1 | BatchNorm | 1.6M | 6.4M | 0.2499 | 6.40G | 250.960 us | 250.960 us | 250.960 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer1.0.relu | ReLU | 803K | 6.4M | 0.1250 | 3.20G | 250.880 us | 250.880 us | 250.880 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer1.1.conv1 | Conv2d | 102.8M | 4.1M | 25.1888 | 48.00G | 2.141 ms | 159.360 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer1.1.bn1 | BatchNorm | 401K | 1.6M | 0.2499 | 6.40G | 62.740 us | 62.740 us | 62.740 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer1.1.relu | ReLU | 803K | 6.4M | 0.1250 | 3.20G | 250.880 us | 250.880 us | 250.880 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer1.1.conv2 | Conv2d | 231.2M | 1.8M | 131.8879 | 48.00G | 4.817 ms | 68.480 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer1.1.bn2 | BatchNorm | 401K | 1.6M | 0.2499 | 6.40G | 62.740 us | 62.740 us | 62.740 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer1.1.relu | ReLU | 803K | 6.4M | 0.1250 | 3.20G | 250.880 us | 250.880 us | 250.880 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer1.1.conv3 | Conv2d | 102.8M | 4.1M | 25.1888 | 48.00G | 2.141 ms | 159.360 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer1.1.bn3 | BatchNorm | 1.6M | 6.4M | 0.2499 | 6.40G | 250.960 us | 250.960 us | 250.960 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer1.1.relu | ReLU | 803K | 6.4M | 0.1250 | 3.20G | 250.880 us | 250.880 us | 250.880 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer1.2.conv1 | Conv2d | 102.8M | 4.1M | 25.1888 | 48.00G | 2.141 ms | 159.360 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer1.2.bn1 | BatchNorm | 401K | 1.6M | 0.2499 | 6.40G | 62.740 us | 62.740 us | 62.740 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer1.2.relu | ReLU | 803K | 6.4M | 0.1250 | 3.20G | 250.880 us | 250.880 us | 250.880 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer1.2.conv2 | Conv2d | 231.2M | 1.8M | 131.8879 | 48.00G | 4.817 ms | 68.480 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer1.2.bn2 | BatchNorm | 401K | 1.6M | 0.2499 | 6.40G | 62.740 us | 62.740 us | 62.740 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer1.2.relu | ReLU | 803K | 6.4M | 0.1250 | 3.20G | 250.880 us | 250.880 us | 250.880 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer1.2.conv3 | Conv2d | 102.8M | 4.1M | 25.1888 | 48.00G | 2.141 ms | 159.360 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer1.2.bn3 | BatchNorm | 1.6M | 6.4M | 0.2499 | 6.40G | 250.960 us | 250.960 us | 250.960 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer1.2.relu | ReLU | 803K | 6.4M | 0.1250 | 3.20G | 250.880 us | 250.880 us | 250.880 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.0.conv1 | Conv2d | 205.5M | 4.9M | 41.5364 | 48.00G | 4.282 ms | 193.280 us | 4.282 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer2.0.bn1 | BatchNorm | 803K | 3.2M | 0.2499 | 6.40G | 125.480 us | 125.480 us | 125.480 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.0.relu | ReLU | 401K | 3.2M | 0.1250 | 3.20G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.0.conv2 | Conv2d | 231.2M | 2.6M | 89.0347 | 48.00G | 4.817 ms | 101.440 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer2.0.bn2 | BatchNorm | 201K | 804K | 0.2497 | 6.39G | 31.400 us | 31.400 us | 31.400 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.0.relu | ReLU | 401K | 3.2M | 0.1250 | 3.20G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.0.conv3 | Conv2d | 102.8M | 2.3M | 45.2852 | 48.00G | 2.141 ms | 88.640 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer2.0.bn3 | BatchNorm | 803K | 3.2M | 0.2497 | 6.39G | 125.600 us | 125.600 us | 125.600 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.0.downsample.0 | Conv2d | 205.5M | 5.3M | 38.4785 | 48.00G | 4.282 ms | 208.640 us | 4.282 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer2.0.downsample.1 | BatchNorm | 803K | 3.2M | 0.2497 | 6.39G | 125.600 us | 125.600 us | 125.600 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.0.relu | ReLU | 401K | 3.2M | 0.1250 | 3.20G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.1.conv1 | Conv2d | 102.8M | 2.3M | 45.2852 | 48.00G | 2.141 ms | 88.640 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer2.1.bn1 | BatchNorm | 201K | 804K | 0.2497 | 6.39G | 31.400 us | 31.400 us | 31.400 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.1.relu | ReLU | 401K | 3.2M | 0.1250 | 3.20G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.1.conv2 | Conv2d | 231.2M | 1.4M | 166.0235 | 48.00G | 4.817 ms | 54.400 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer2.1.bn2 | BatchNorm | 201K | 804K | 0.2497 | 6.39G | 31.400 us | 31.400 us | 31.400 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.1.relu | ReLU | 401K | 3.2M | 0.1250 | 3.20G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.1.conv3 | Conv2d | 102.8M | 2.3M | 45.2852 | 48.00G | 2.141 ms | 88.640 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer2.1.bn3 | BatchNorm | 803K | 3.2M | 0.2497 | 6.39G | 125.600 us | 125.600 us | 125.600 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.1.relu | ReLU | 401K | 3.2M | 0.1250 | 3.20G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.2.conv1 | Conv2d | 102.8M | 2.3M | 45.2852 | 48.00G | 2.141 ms | 88.640 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer2.2.bn1 | BatchNorm | 201K | 804K | 0.2497 | 6.39G | 31.400 us | 31.400 us | 31.400 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.2.relu | ReLU | 401K | 3.2M | 0.1250 | 3.20G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.2.conv2 | Conv2d | 231.2M | 1.4M | 166.0235 | 48.00G | 4.817 ms | 54.400 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer2.2.bn2 | BatchNorm | 201K | 804K | 0.2497 | 6.39G | 31.400 us | 31.400 us | 31.400 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.2.relu | ReLU | 401K | 3.2M | 0.1250 | 3.20G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.2.conv3 | Conv2d | 102.8M | 2.3M | 45.2852 | 48.00G | 2.141 ms | 88.640 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer2.2.bn3 | BatchNorm | 803K | 3.2M | 0.2497 | 6.39G | 125.600 us | 125.600 us | 125.600 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.2.relu | ReLU | 401K | 3.2M | 0.1250 | 3.20G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.3.conv1 | Conv2d | 102.8M | 2.3M | 45.2852 | 48.00G | 2.141 ms | 88.640 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer2.3.bn1 | BatchNorm | 201K | 804K | 0.2497 | 6.39G | 31.400 us | 31.400 us | 31.400 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.3.relu | ReLU | 401K | 3.2M | 0.1250 | 3.20G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.3.conv2 | Conv2d | 231.2M | 1.4M | 166.0235 | 48.00G | 4.817 ms | 54.400 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer2.3.bn2 | BatchNorm | 201K | 804K | 0.2497 | 6.39G | 31.400 us | 31.400 us | 31.400 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.3.relu | ReLU | 401K | 3.2M | 0.1250 | 3.20G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.3.conv3 | Conv2d | 102.8M | 2.3M | 45.2852 | 48.00G | 2.141 ms | 88.640 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer2.3.bn3 | BatchNorm | 803K | 3.2M | 0.2497 | 6.39G | 125.600 us | 125.600 us | 125.600 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer2.3.relu | ReLU | 401K | 3.2M | 0.1250 | 3.20G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.0.conv1 | Conv2d | 205.5M | 2.9M | 70.0782 | 48.00G | 4.282 ms | 114.560 us | 4.282 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.0.bn1 | BatchNorm | 401K | 1.6M | 0.2497 | 6.39G | 62.800 us | 62.800 us | 62.800 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.0.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.0.conv2 | Conv2d | 231.2M | 3.4M | 68.7552 | 48.00G | 4.817 ms | 131.360 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.0.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.0.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.0.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.0.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.0.downsample.0 | Conv2d | 205.5M | 4.5M | 45.6145 | 48.00G | 4.282 ms | 176.000 us | 4.282 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.0.downsample.1 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.0.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.1.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.1.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.1.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.1.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.1.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.1.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.1.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.1.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.1.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.2.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.2.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.2.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.2.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.2.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.2.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.2.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.2.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.2.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.3.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.3.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.3.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.3.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.3.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.3.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.3.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.3.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.3.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.4.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.4.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.4.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.4.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.4.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.4.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.4.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.4.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.4.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.5.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.5.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.5.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.5.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.5.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.5.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.5.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.5.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.5.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.6.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.6.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.6.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.6.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.6.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.6.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.6.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.6.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.6.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.7.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.7.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.7.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.7.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.7.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.7.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.7.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.7.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.7.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.8.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.8.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.8.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.8.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.8.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.8.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.8.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.8.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.8.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.9.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.9.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.9.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.9.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.9.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.9.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.9.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.9.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.9.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.10.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.10.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.10.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.10.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.10.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.10.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.10.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.10.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.10.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.11.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.11.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.11.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.11.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.11.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.11.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.11.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.11.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.11.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.12.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.12.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.12.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.12.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.12.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.12.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.12.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.12.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.12.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.13.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.13.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.13.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.13.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.13.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.13.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.13.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.13.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.13.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.14.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.14.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.14.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.14.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.14.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.14.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.14.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.14.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.14.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.15.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.15.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.15.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.15.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.15.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.15.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.15.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.15.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.15.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.16.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.16.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.16.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.16.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.16.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.16.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.16.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.16.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.16.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.17.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.17.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.17.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.17.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.17.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.17.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.17.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.17.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.17.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.18.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.18.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.18.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.18.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.18.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.18.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.18.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.18.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.18.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.19.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.19.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.19.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.19.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.19.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.19.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.19.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.19.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.19.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.20.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.20.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.20.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.20.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.20.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.20.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.20.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.20.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.20.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.21.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.21.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.21.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.21.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.21.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.21.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.21.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.21.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.21.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.22.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.22.bn1 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.22.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.22.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 48.00G | 4.817 ms | 107.840 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.22.bn2 | BatchNorm | 100K | 403K | 0.2487 | 6.37G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.22.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.22.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 48.00G | 2.141 ms | 80.160 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer3.22.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 6.37G | 63.040 us | 63.040 us | 63.040 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer3.22.relu | ReLU | 201K | 1.6M | 0.1250 | 3.20G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer4.0.conv1 | Conv2d | 205.5M | 3.3M | 62.2531 | 48.00G | 4.282 ms | 128.960 us | 4.282 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer4.0.bn1 | BatchNorm | 201K | 807K | 0.2487 | 6.37G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer4.0.relu | ReLU | 100K | 803K | 0.1250 | 3.20G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer4.0.conv2 | Conv2d | 231.2M | 9.9M | 23.2631 | 48.00G | 4.817 ms | 388.240 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer4.0.bn2 | BatchNorm | 50K | 205K | 0.2450 | 6.27G | 8.000 us | 8.000 us | 8.000 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer4.0.relu | ReLU | 100K | 803K | 0.1250 | 3.20G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer4.0.conv3 | Conv2d | 102.8M | 4.7M | 21.8823 | 48.00G | 2.141 ms | 183.440 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer4.0.bn3 | BatchNorm | 201K | 819K | 0.2450 | 6.27G | 32.000 us | 32.000 us | 32.000 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer4.0.downsample.0 | Conv2d | 205.5M | 9.6M | 21.4244 | 48.00G | 4.282 ms | 374.720 us | 4.282 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer4.0.downsample.1 | BatchNorm | 201K | 819K | 0.2450 | 6.27G | 32.000 us | 32.000 us | 32.000 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer4.0.relu | ReLU | 100K | 803K | 0.1250 | 3.20G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer4.1.conv1 | Conv2d | 102.8M | 4.7M | 21.8823 | 48.00G | 2.141 ms | 183.440 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer4.1.bn1 | BatchNorm | 50K | 205K | 0.2450 | 6.27G | 8.000 us | 8.000 us | 8.000 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer4.1.relu | ReLU | 100K | 803K | 0.1250 | 3.20G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer4.1.conv2 | Conv2d | 231.2M | 9.6M | 23.9898 | 48.00G | 4.817 ms | 376.480 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer4.1.bn2 | BatchNorm | 50K | 205K | 0.2450 | 6.27G | 8.000 us | 8.000 us | 8.000 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer4.1.relu | ReLU | 100K | 803K | 0.1250 | 3.20G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer4.1.conv3 | Conv2d | 102.8M | 4.7M | 21.8823 | 48.00G | 2.141 ms | 183.440 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer4.1.bn3 | BatchNorm | 201K | 819K | 0.2450 | 6.27G | 32.000 us | 32.000 us | 32.000 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer4.1.relu | ReLU | 100K | 803K | 0.1250 | 3.20G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer4.2.conv1 | Conv2d | 102.8M | 4.7M | 21.8823 | 48.00G | 2.141 ms | 183.440 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer4.2.bn1 | BatchNorm | 50K | 205K | 0.2450 | 6.27G | 8.000 us | 8.000 us | 8.000 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer4.2.relu | ReLU | 100K | 803K | 0.1250 | 3.20G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer4.2.conv2 | Conv2d | 231.2M | 9.6M | 23.9898 | 48.00G | 4.817 ms | 376.480 us | 4.817 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer4.2.bn2 | BatchNorm | 50K | 205K | 0.2450 | 6.27G | 8.000 us | 8.000 us | 8.000 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer4.2.relu | ReLU | 100K | 803K | 0.1250 | 3.20G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer4.2.conv3 | Conv2d | 102.8M | 4.7M | 21.8823 | 48.00G | 2.141 ms | 183.440 us | 2.141 ms | compute |
+| ResNet101 | Raspberry Pi 4 | layer4.2.bn3 | BatchNorm | 201K | 819K | 0.2450 | 6.27G | 32.000 us | 32.000 us | 32.000 us | memory |
+| ResNet101 | Raspberry Pi 4 | layer4.2.relu | ReLU | 100K | 803K | 0.1250 | 3.20G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 4 | avgpool | AdaptiveAvgPool | 2K | 410K | 0.0050 | 128.0M | 16.000 us | 16.000 us | 16.000 us | memory |
+| ResNet101 | Raspberry Pi 4 | fc | Linear | 4.1M | 8.2M | 0.4991 | 12.78G | 320.632 us | 320.632 us | 320.632 us | memory |
+| ResNet101 | Raspberry Pi 5 | conv1 | Conv2d | 236.0M | 3.9M | 61.2899 | 38.40G | 6.147 ms | 75.215 us | 6.147 ms | compute |
+| ResNet101 | Raspberry Pi 5 | bn1 | BatchNorm | 1.6M | 6.4M | 0.2500 | 12.80G | 125.450 us | 125.450 us | 125.450 us | memory |
+| ResNet101 | Raspberry Pi 5 | relu | ReLU | 803K | 6.4M | 0.1250 | 6.40G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 5 | maxpool | MaxPool | 803K | 4.0M | 0.2000 | 10.24G | 78.400 us | 78.400 us | 78.400 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer1.0.conv1 | Conv2d | 25.7M | 1.6M | 15.8384 | 38.40G | 669.013 us | 31.680 us | 669.013 us | compute |
+| ResNet101 | Raspberry Pi 5 | layer1.0.bn1 | BatchNorm | 401K | 1.6M | 0.2499 | 12.80G | 31.370 us | 31.370 us | 31.370 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer1.0.relu | ReLU | 803K | 6.4M | 0.1250 | 6.40G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer1.0.conv2 | Conv2d | 231.2M | 1.8M | 131.8879 | 38.40G | 6.021 ms | 34.240 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer1.0.bn2 | BatchNorm | 401K | 1.6M | 0.2499 | 12.80G | 31.370 us | 31.370 us | 31.370 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer1.0.relu | ReLU | 803K | 6.4M | 0.1250 | 6.40G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer1.0.conv3 | Conv2d | 102.8M | 4.1M | 25.1888 | 38.40G | 2.676 ms | 79.680 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer1.0.bn3 | BatchNorm | 1.6M | 6.4M | 0.2499 | 12.80G | 125.480 us | 125.480 us | 125.480 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer1.0.downsample.0 | Conv2d | 102.8M | 4.1M | 25.1888 | 38.40G | 2.676 ms | 79.680 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer1.0.downsample.1 | BatchNorm | 1.6M | 6.4M | 0.2499 | 12.80G | 125.480 us | 125.480 us | 125.480 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer1.0.relu | ReLU | 803K | 6.4M | 0.1250 | 6.40G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer1.1.conv1 | Conv2d | 102.8M | 4.1M | 25.1888 | 38.40G | 2.676 ms | 79.680 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer1.1.bn1 | BatchNorm | 401K | 1.6M | 0.2499 | 12.80G | 31.370 us | 31.370 us | 31.370 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer1.1.relu | ReLU | 803K | 6.4M | 0.1250 | 6.40G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer1.1.conv2 | Conv2d | 231.2M | 1.8M | 131.8879 | 38.40G | 6.021 ms | 34.240 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer1.1.bn2 | BatchNorm | 401K | 1.6M | 0.2499 | 12.80G | 31.370 us | 31.370 us | 31.370 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer1.1.relu | ReLU | 803K | 6.4M | 0.1250 | 6.40G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer1.1.conv3 | Conv2d | 102.8M | 4.1M | 25.1888 | 38.40G | 2.676 ms | 79.680 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer1.1.bn3 | BatchNorm | 1.6M | 6.4M | 0.2499 | 12.80G | 125.480 us | 125.480 us | 125.480 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer1.1.relu | ReLU | 803K | 6.4M | 0.1250 | 6.40G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer1.2.conv1 | Conv2d | 102.8M | 4.1M | 25.1888 | 38.40G | 2.676 ms | 79.680 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer1.2.bn1 | BatchNorm | 401K | 1.6M | 0.2499 | 12.80G | 31.370 us | 31.370 us | 31.370 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer1.2.relu | ReLU | 803K | 6.4M | 0.1250 | 6.40G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer1.2.conv2 | Conv2d | 231.2M | 1.8M | 131.8879 | 38.40G | 6.021 ms | 34.240 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer1.2.bn2 | BatchNorm | 401K | 1.6M | 0.2499 | 12.80G | 31.370 us | 31.370 us | 31.370 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer1.2.relu | ReLU | 803K | 6.4M | 0.1250 | 6.40G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer1.2.conv3 | Conv2d | 102.8M | 4.1M | 25.1888 | 38.40G | 2.676 ms | 79.680 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer1.2.bn3 | BatchNorm | 1.6M | 6.4M | 0.2499 | 12.80G | 125.480 us | 125.480 us | 125.480 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer1.2.relu | ReLU | 803K | 6.4M | 0.1250 | 6.40G | 125.440 us | 125.440 us | 125.440 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.0.conv1 | Conv2d | 205.5M | 4.9M | 41.5364 | 38.40G | 5.352 ms | 96.640 us | 5.352 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer2.0.bn1 | BatchNorm | 803K | 3.2M | 0.2499 | 12.80G | 62.740 us | 62.740 us | 62.740 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.0.relu | ReLU | 401K | 3.2M | 0.1250 | 6.40G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.0.conv2 | Conv2d | 231.2M | 2.6M | 89.0347 | 38.40G | 6.021 ms | 50.720 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer2.0.bn2 | BatchNorm | 201K | 804K | 0.2497 | 12.78G | 15.700 us | 15.700 us | 15.700 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.0.relu | ReLU | 401K | 3.2M | 0.1250 | 6.40G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.0.conv3 | Conv2d | 102.8M | 2.3M | 45.2852 | 38.40G | 2.676 ms | 44.320 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer2.0.bn3 | BatchNorm | 803K | 3.2M | 0.2497 | 12.78G | 62.800 us | 62.800 us | 62.800 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.0.downsample.0 | Conv2d | 205.5M | 5.3M | 38.4785 | 38.40G | 5.352 ms | 104.320 us | 5.352 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer2.0.downsample.1 | BatchNorm | 803K | 3.2M | 0.2497 | 12.78G | 62.800 us | 62.800 us | 62.800 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.0.relu | ReLU | 401K | 3.2M | 0.1250 | 6.40G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.1.conv1 | Conv2d | 102.8M | 2.3M | 45.2852 | 38.40G | 2.676 ms | 44.320 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer2.1.bn1 | BatchNorm | 201K | 804K | 0.2497 | 12.78G | 15.700 us | 15.700 us | 15.700 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.1.relu | ReLU | 401K | 3.2M | 0.1250 | 6.40G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.1.conv2 | Conv2d | 231.2M | 1.4M | 166.0235 | 38.40G | 6.021 ms | 27.200 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer2.1.bn2 | BatchNorm | 201K | 804K | 0.2497 | 12.78G | 15.700 us | 15.700 us | 15.700 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.1.relu | ReLU | 401K | 3.2M | 0.1250 | 6.40G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.1.conv3 | Conv2d | 102.8M | 2.3M | 45.2852 | 38.40G | 2.676 ms | 44.320 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer2.1.bn3 | BatchNorm | 803K | 3.2M | 0.2497 | 12.78G | 62.800 us | 62.800 us | 62.800 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.1.relu | ReLU | 401K | 3.2M | 0.1250 | 6.40G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.2.conv1 | Conv2d | 102.8M | 2.3M | 45.2852 | 38.40G | 2.676 ms | 44.320 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer2.2.bn1 | BatchNorm | 201K | 804K | 0.2497 | 12.78G | 15.700 us | 15.700 us | 15.700 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.2.relu | ReLU | 401K | 3.2M | 0.1250 | 6.40G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.2.conv2 | Conv2d | 231.2M | 1.4M | 166.0235 | 38.40G | 6.021 ms | 27.200 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer2.2.bn2 | BatchNorm | 201K | 804K | 0.2497 | 12.78G | 15.700 us | 15.700 us | 15.700 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.2.relu | ReLU | 401K | 3.2M | 0.1250 | 6.40G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.2.conv3 | Conv2d | 102.8M | 2.3M | 45.2852 | 38.40G | 2.676 ms | 44.320 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer2.2.bn3 | BatchNorm | 803K | 3.2M | 0.2497 | 12.78G | 62.800 us | 62.800 us | 62.800 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.2.relu | ReLU | 401K | 3.2M | 0.1250 | 6.40G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.3.conv1 | Conv2d | 102.8M | 2.3M | 45.2852 | 38.40G | 2.676 ms | 44.320 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer2.3.bn1 | BatchNorm | 201K | 804K | 0.2497 | 12.78G | 15.700 us | 15.700 us | 15.700 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.3.relu | ReLU | 401K | 3.2M | 0.1250 | 6.40G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.3.conv2 | Conv2d | 231.2M | 1.4M | 166.0235 | 38.40G | 6.021 ms | 27.200 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer2.3.bn2 | BatchNorm | 201K | 804K | 0.2497 | 12.78G | 15.700 us | 15.700 us | 15.700 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.3.relu | ReLU | 401K | 3.2M | 0.1250 | 6.40G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.3.conv3 | Conv2d | 102.8M | 2.3M | 45.2852 | 38.40G | 2.676 ms | 44.320 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer2.3.bn3 | BatchNorm | 803K | 3.2M | 0.2497 | 12.78G | 62.800 us | 62.800 us | 62.800 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer2.3.relu | ReLU | 401K | 3.2M | 0.1250 | 6.40G | 62.720 us | 62.720 us | 62.720 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.0.conv1 | Conv2d | 205.5M | 2.9M | 70.0782 | 38.40G | 5.352 ms | 57.280 us | 5.352 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.0.bn1 | BatchNorm | 401K | 1.6M | 0.2497 | 12.78G | 31.400 us | 31.400 us | 31.400 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.0.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.0.conv2 | Conv2d | 231.2M | 3.4M | 68.7552 | 38.40G | 6.021 ms | 65.680 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.0.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.0.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.0.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.0.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.0.downsample.0 | Conv2d | 205.5M | 4.5M | 45.6145 | 38.40G | 5.352 ms | 88.000 us | 5.352 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.0.downsample.1 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.0.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.1.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.1.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.1.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.1.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.1.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.1.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.1.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.1.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.1.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.2.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.2.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.2.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.2.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.2.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.2.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.2.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.2.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.2.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.3.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.3.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.3.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.3.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.3.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.3.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.3.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.3.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.3.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.4.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.4.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.4.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.4.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.4.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.4.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.4.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.4.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.4.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.5.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.5.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.5.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.5.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.5.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.5.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.5.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.5.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.5.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.6.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.6.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.6.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.6.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.6.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.6.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.6.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.6.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.6.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.7.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.7.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.7.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.7.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.7.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.7.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.7.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.7.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.7.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.8.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.8.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.8.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.8.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.8.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.8.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.8.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.8.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.8.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.9.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.9.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.9.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.9.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.9.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.9.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.9.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.9.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.9.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.10.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.10.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.10.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.10.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.10.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.10.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.10.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.10.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.10.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.11.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.11.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.11.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.11.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.11.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.11.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.11.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.11.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.11.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.12.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.12.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.12.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.12.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.12.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.12.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.12.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.12.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.12.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.13.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.13.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.13.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.13.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.13.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.13.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.13.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.13.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.13.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.14.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.14.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.14.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.14.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.14.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.14.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.14.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.14.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.14.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.15.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.15.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.15.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.15.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.15.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.15.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.15.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.15.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.15.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.16.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.16.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.16.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.16.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.16.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.16.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.16.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.16.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.16.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.17.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.17.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.17.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.17.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.17.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.17.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.17.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.17.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.17.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.18.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.18.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.18.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.18.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.18.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.18.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.18.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.18.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.18.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.19.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.19.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.19.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.19.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.19.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.19.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.19.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.19.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.19.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.20.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.20.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.20.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.20.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.20.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.20.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.20.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.20.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.20.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.21.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.21.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.21.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.21.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.21.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.21.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.21.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.21.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.21.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.22.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.22.bn1 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.22.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.22.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 38.40G | 6.021 ms | 53.920 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.22.bn2 | BatchNorm | 100K | 403K | 0.2487 | 12.74G | 7.880 us | 7.880 us | 7.880 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.22.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.22.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 38.40G | 2.676 ms | 40.080 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer3.22.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 12.74G | 31.520 us | 31.520 us | 31.520 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer3.22.relu | ReLU | 201K | 1.6M | 0.1250 | 6.40G | 31.360 us | 31.360 us | 31.360 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer4.0.conv1 | Conv2d | 205.5M | 3.3M | 62.2531 | 38.40G | 5.352 ms | 64.480 us | 5.352 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer4.0.bn1 | BatchNorm | 201K | 807K | 0.2487 | 12.74G | 15.760 us | 15.760 us | 15.760 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer4.0.relu | ReLU | 100K | 803K | 0.1250 | 6.40G | 15.680 us | 15.680 us | 15.680 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer4.0.conv2 | Conv2d | 231.2M | 9.9M | 23.2631 | 38.40G | 6.021 ms | 194.120 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer4.0.bn2 | BatchNorm | 50K | 205K | 0.2450 | 12.54G | 4.000 us | 4.000 us | 4.000 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer4.0.relu | ReLU | 100K | 803K | 0.1250 | 6.40G | 15.680 us | 15.680 us | 15.680 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer4.0.conv3 | Conv2d | 102.8M | 4.7M | 21.8823 | 38.40G | 2.676 ms | 91.720 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer4.0.bn3 | BatchNorm | 201K | 819K | 0.2450 | 12.54G | 16.000 us | 16.000 us | 16.000 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer4.0.downsample.0 | Conv2d | 205.5M | 9.6M | 21.4244 | 38.40G | 5.352 ms | 187.360 us | 5.352 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer4.0.downsample.1 | BatchNorm | 201K | 819K | 0.2450 | 12.54G | 16.000 us | 16.000 us | 16.000 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer4.0.relu | ReLU | 100K | 803K | 0.1250 | 6.40G | 15.680 us | 15.680 us | 15.680 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer4.1.conv1 | Conv2d | 102.8M | 4.7M | 21.8823 | 38.40G | 2.676 ms | 91.720 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer4.1.bn1 | BatchNorm | 50K | 205K | 0.2450 | 12.54G | 4.000 us | 4.000 us | 4.000 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer4.1.relu | ReLU | 100K | 803K | 0.1250 | 6.40G | 15.680 us | 15.680 us | 15.680 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer4.1.conv2 | Conv2d | 231.2M | 9.6M | 23.9898 | 38.40G | 6.021 ms | 188.240 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer4.1.bn2 | BatchNorm | 50K | 205K | 0.2450 | 12.54G | 4.000 us | 4.000 us | 4.000 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer4.1.relu | ReLU | 100K | 803K | 0.1250 | 6.40G | 15.680 us | 15.680 us | 15.680 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer4.1.conv3 | Conv2d | 102.8M | 4.7M | 21.8823 | 38.40G | 2.676 ms | 91.720 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer4.1.bn3 | BatchNorm | 201K | 819K | 0.2450 | 12.54G | 16.000 us | 16.000 us | 16.000 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer4.1.relu | ReLU | 100K | 803K | 0.1250 | 6.40G | 15.680 us | 15.680 us | 15.680 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer4.2.conv1 | Conv2d | 102.8M | 4.7M | 21.8823 | 38.40G | 2.676 ms | 91.720 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer4.2.bn1 | BatchNorm | 50K | 205K | 0.2450 | 12.54G | 4.000 us | 4.000 us | 4.000 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer4.2.relu | ReLU | 100K | 803K | 0.1250 | 6.40G | 15.680 us | 15.680 us | 15.680 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer4.2.conv2 | Conv2d | 231.2M | 9.6M | 23.9898 | 38.40G | 6.021 ms | 188.240 us | 6.021 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer4.2.bn2 | BatchNorm | 50K | 205K | 0.2450 | 12.54G | 4.000 us | 4.000 us | 4.000 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer4.2.relu | ReLU | 100K | 803K | 0.1250 | 6.40G | 15.680 us | 15.680 us | 15.680 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer4.2.conv3 | Conv2d | 102.8M | 4.7M | 21.8823 | 38.40G | 2.676 ms | 91.720 us | 2.676 ms | compute |
+| ResNet101 | Raspberry Pi 5 | layer4.2.bn3 | BatchNorm | 201K | 819K | 0.2450 | 12.54G | 16.000 us | 16.000 us | 16.000 us | memory |
+| ResNet101 | Raspberry Pi 5 | layer4.2.relu | ReLU | 100K | 803K | 0.1250 | 6.40G | 15.680 us | 15.680 us | 15.680 us | memory |
+| ResNet101 | Raspberry Pi 5 | avgpool | AdaptiveAvgPool | 2K | 410K | 0.0050 | 256.0M | 8.000 us | 8.000 us | 8.000 us | memory |
+| ResNet101 | Raspberry Pi 5 | fc | Linear | 4.1M | 8.2M | 0.4991 | 25.56G | 160.316 us | 160.316 us | 160.316 us | memory |
+| ResNet101 | Apple M4 | conv1 | Conv2d | 236.0M | 3.9M | 61.2899 | 4.60T | 51.310 us | 32.092 us | 51.310 us | compute |
+| ResNet101 | Apple M4 | bn1 | BatchNorm | 1.6M | 6.4M | 0.2500 | 30.00G | 53.525 us | 53.525 us | 53.525 us | memory |
+| ResNet101 | Apple M4 | relu | ReLU | 803K | 6.4M | 0.1250 | 15.00G | 53.521 us | 53.521 us | 53.521 us | memory |
+| ResNet101 | Apple M4 | maxpool | MaxPool | 803K | 4.0M | 0.2000 | 24.00G | 33.451 us | 33.451 us | 33.451 us | memory |
+| ResNet101 | Apple M4 | layer1.0.conv1 | Conv2d | 25.7M | 1.6M | 15.8384 | 1.90T | 13.517 us | 13.517 us | 13.517 us | memory |
+| ResNet101 | Apple M4 | layer1.0.bn1 | BatchNorm | 401K | 1.6M | 0.2499 | 29.99G | 13.385 us | 13.385 us | 13.385 us | memory |
+| ResNet101 | Apple M4 | layer1.0.relu | ReLU | 803K | 6.4M | 0.1250 | 15.00G | 53.521 us | 53.521 us | 53.521 us | memory |
+| ResNet101 | Apple M4 | layer1.0.conv2 | Conv2d | 231.2M | 1.8M | 131.8879 | 4.60T | 50.263 us | 14.609 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer1.0.bn2 | BatchNorm | 401K | 1.6M | 0.2499 | 29.99G | 13.385 us | 13.385 us | 13.385 us | memory |
+| ResNet101 | Apple M4 | layer1.0.relu | ReLU | 803K | 6.4M | 0.1250 | 15.00G | 53.521 us | 53.521 us | 53.521 us | memory |
+| ResNet101 | Apple M4 | layer1.0.conv3 | Conv2d | 102.8M | 4.1M | 25.1888 | 3.02T | 33.997 us | 33.997 us | 33.997 us | memory |
+| ResNet101 | Apple M4 | layer1.0.bn3 | BatchNorm | 1.6M | 6.4M | 0.2499 | 29.99G | 53.538 us | 53.538 us | 53.538 us | memory |
+| ResNet101 | Apple M4 | layer1.0.downsample.0 | Conv2d | 102.8M | 4.1M | 25.1888 | 3.02T | 33.997 us | 33.997 us | 33.997 us | memory |
+| ResNet101 | Apple M4 | layer1.0.downsample.1 | BatchNorm | 1.6M | 6.4M | 0.2499 | 29.99G | 53.538 us | 53.538 us | 53.538 us | memory |
+| ResNet101 | Apple M4 | layer1.0.relu | ReLU | 803K | 6.4M | 0.1250 | 15.00G | 53.521 us | 53.521 us | 53.521 us | memory |
+| ResNet101 | Apple M4 | layer1.1.conv1 | Conv2d | 102.8M | 4.1M | 25.1888 | 3.02T | 33.997 us | 33.997 us | 33.997 us | memory |
+| ResNet101 | Apple M4 | layer1.1.bn1 | BatchNorm | 401K | 1.6M | 0.2499 | 29.99G | 13.385 us | 13.385 us | 13.385 us | memory |
+| ResNet101 | Apple M4 | layer1.1.relu | ReLU | 803K | 6.4M | 0.1250 | 15.00G | 53.521 us | 53.521 us | 53.521 us | memory |
+| ResNet101 | Apple M4 | layer1.1.conv2 | Conv2d | 231.2M | 1.8M | 131.8879 | 4.60T | 50.263 us | 14.609 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer1.1.bn2 | BatchNorm | 401K | 1.6M | 0.2499 | 29.99G | 13.385 us | 13.385 us | 13.385 us | memory |
+| ResNet101 | Apple M4 | layer1.1.relu | ReLU | 803K | 6.4M | 0.1250 | 15.00G | 53.521 us | 53.521 us | 53.521 us | memory |
+| ResNet101 | Apple M4 | layer1.1.conv3 | Conv2d | 102.8M | 4.1M | 25.1888 | 3.02T | 33.997 us | 33.997 us | 33.997 us | memory |
+| ResNet101 | Apple M4 | layer1.1.bn3 | BatchNorm | 1.6M | 6.4M | 0.2499 | 29.99G | 53.538 us | 53.538 us | 53.538 us | memory |
+| ResNet101 | Apple M4 | layer1.1.relu | ReLU | 803K | 6.4M | 0.1250 | 15.00G | 53.521 us | 53.521 us | 53.521 us | memory |
+| ResNet101 | Apple M4 | layer1.2.conv1 | Conv2d | 102.8M | 4.1M | 25.1888 | 3.02T | 33.997 us | 33.997 us | 33.997 us | memory |
+| ResNet101 | Apple M4 | layer1.2.bn1 | BatchNorm | 401K | 1.6M | 0.2499 | 29.99G | 13.385 us | 13.385 us | 13.385 us | memory |
+| ResNet101 | Apple M4 | layer1.2.relu | ReLU | 803K | 6.4M | 0.1250 | 15.00G | 53.521 us | 53.521 us | 53.521 us | memory |
+| ResNet101 | Apple M4 | layer1.2.conv2 | Conv2d | 231.2M | 1.8M | 131.8879 | 4.60T | 50.263 us | 14.609 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer1.2.bn2 | BatchNorm | 401K | 1.6M | 0.2499 | 29.99G | 13.385 us | 13.385 us | 13.385 us | memory |
+| ResNet101 | Apple M4 | layer1.2.relu | ReLU | 803K | 6.4M | 0.1250 | 15.00G | 53.521 us | 53.521 us | 53.521 us | memory |
+| ResNet101 | Apple M4 | layer1.2.conv3 | Conv2d | 102.8M | 4.1M | 25.1888 | 3.02T | 33.997 us | 33.997 us | 33.997 us | memory |
+| ResNet101 | Apple M4 | layer1.2.bn3 | BatchNorm | 1.6M | 6.4M | 0.2499 | 29.99G | 53.538 us | 53.538 us | 53.538 us | memory |
+| ResNet101 | Apple M4 | layer1.2.relu | ReLU | 803K | 6.4M | 0.1250 | 15.00G | 53.521 us | 53.521 us | 53.521 us | memory |
+| ResNet101 | Apple M4 | layer2.0.conv1 | Conv2d | 205.5M | 4.9M | 41.5364 | 4.60T | 44.678 us | 41.233 us | 44.678 us | compute |
+| ResNet101 | Apple M4 | layer2.0.bn1 | BatchNorm | 803K | 3.2M | 0.2499 | 29.99G | 26.769 us | 26.769 us | 26.769 us | memory |
+| ResNet101 | Apple M4 | layer2.0.relu | ReLU | 401K | 3.2M | 0.1250 | 15.00G | 26.761 us | 26.761 us | 26.761 us | memory |
+| ResNet101 | Apple M4 | layer2.0.conv2 | Conv2d | 231.2M | 2.6M | 89.0347 | 4.60T | 50.263 us | 21.641 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer2.0.bn2 | BatchNorm | 201K | 804K | 0.2497 | 29.96G | 6.699 us | 6.699 us | 6.699 us | memory |
+| ResNet101 | Apple M4 | layer2.0.relu | ReLU | 401K | 3.2M | 0.1250 | 15.00G | 26.761 us | 26.761 us | 26.761 us | memory |
+| ResNet101 | Apple M4 | layer2.0.conv3 | Conv2d | 102.8M | 2.3M | 45.2852 | 4.60T | 22.339 us | 18.910 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer2.0.bn3 | BatchNorm | 803K | 3.2M | 0.2497 | 29.96G | 26.795 us | 26.795 us | 26.795 us | memory |
+| ResNet101 | Apple M4 | layer2.0.downsample.0 | Conv2d | 205.5M | 5.3M | 38.4785 | 4.60T | 44.678 us | 44.510 us | 44.678 us | compute |
+| ResNet101 | Apple M4 | layer2.0.downsample.1 | BatchNorm | 803K | 3.2M | 0.2497 | 29.96G | 26.795 us | 26.795 us | 26.795 us | memory |
+| ResNet101 | Apple M4 | layer2.0.relu | ReLU | 401K | 3.2M | 0.1250 | 15.00G | 26.761 us | 26.761 us | 26.761 us | memory |
+| ResNet101 | Apple M4 | layer2.1.conv1 | Conv2d | 102.8M | 2.3M | 45.2852 | 4.60T | 22.339 us | 18.910 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer2.1.bn1 | BatchNorm | 201K | 804K | 0.2497 | 29.96G | 6.699 us | 6.699 us | 6.699 us | memory |
+| ResNet101 | Apple M4 | layer2.1.relu | ReLU | 401K | 3.2M | 0.1250 | 15.00G | 26.761 us | 26.761 us | 26.761 us | memory |
+| ResNet101 | Apple M4 | layer2.1.conv2 | Conv2d | 231.2M | 1.4M | 166.0235 | 4.60T | 50.263 us | 11.605 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer2.1.bn2 | BatchNorm | 201K | 804K | 0.2497 | 29.96G | 6.699 us | 6.699 us | 6.699 us | memory |
+| ResNet101 | Apple M4 | layer2.1.relu | ReLU | 401K | 3.2M | 0.1250 | 15.00G | 26.761 us | 26.761 us | 26.761 us | memory |
+| ResNet101 | Apple M4 | layer2.1.conv3 | Conv2d | 102.8M | 2.3M | 45.2852 | 4.60T | 22.339 us | 18.910 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer2.1.bn3 | BatchNorm | 803K | 3.2M | 0.2497 | 29.96G | 26.795 us | 26.795 us | 26.795 us | memory |
+| ResNet101 | Apple M4 | layer2.1.relu | ReLU | 401K | 3.2M | 0.1250 | 15.00G | 26.761 us | 26.761 us | 26.761 us | memory |
+| ResNet101 | Apple M4 | layer2.2.conv1 | Conv2d | 102.8M | 2.3M | 45.2852 | 4.60T | 22.339 us | 18.910 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer2.2.bn1 | BatchNorm | 201K | 804K | 0.2497 | 29.96G | 6.699 us | 6.699 us | 6.699 us | memory |
+| ResNet101 | Apple M4 | layer2.2.relu | ReLU | 401K | 3.2M | 0.1250 | 15.00G | 26.761 us | 26.761 us | 26.761 us | memory |
+| ResNet101 | Apple M4 | layer2.2.conv2 | Conv2d | 231.2M | 1.4M | 166.0235 | 4.60T | 50.263 us | 11.605 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer2.2.bn2 | BatchNorm | 201K | 804K | 0.2497 | 29.96G | 6.699 us | 6.699 us | 6.699 us | memory |
+| ResNet101 | Apple M4 | layer2.2.relu | ReLU | 401K | 3.2M | 0.1250 | 15.00G | 26.761 us | 26.761 us | 26.761 us | memory |
+| ResNet101 | Apple M4 | layer2.2.conv3 | Conv2d | 102.8M | 2.3M | 45.2852 | 4.60T | 22.339 us | 18.910 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer2.2.bn3 | BatchNorm | 803K | 3.2M | 0.2497 | 29.96G | 26.795 us | 26.795 us | 26.795 us | memory |
+| ResNet101 | Apple M4 | layer2.2.relu | ReLU | 401K | 3.2M | 0.1250 | 15.00G | 26.761 us | 26.761 us | 26.761 us | memory |
+| ResNet101 | Apple M4 | layer2.3.conv1 | Conv2d | 102.8M | 2.3M | 45.2852 | 4.60T | 22.339 us | 18.910 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer2.3.bn1 | BatchNorm | 201K | 804K | 0.2497 | 29.96G | 6.699 us | 6.699 us | 6.699 us | memory |
+| ResNet101 | Apple M4 | layer2.3.relu | ReLU | 401K | 3.2M | 0.1250 | 15.00G | 26.761 us | 26.761 us | 26.761 us | memory |
+| ResNet101 | Apple M4 | layer2.3.conv2 | Conv2d | 231.2M | 1.4M | 166.0235 | 4.60T | 50.263 us | 11.605 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer2.3.bn2 | BatchNorm | 201K | 804K | 0.2497 | 29.96G | 6.699 us | 6.699 us | 6.699 us | memory |
+| ResNet101 | Apple M4 | layer2.3.relu | ReLU | 401K | 3.2M | 0.1250 | 15.00G | 26.761 us | 26.761 us | 26.761 us | memory |
+| ResNet101 | Apple M4 | layer2.3.conv3 | Conv2d | 102.8M | 2.3M | 45.2852 | 4.60T | 22.339 us | 18.910 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer2.3.bn3 | BatchNorm | 803K | 3.2M | 0.2497 | 29.96G | 26.795 us | 26.795 us | 26.795 us | memory |
+| ResNet101 | Apple M4 | layer2.3.relu | ReLU | 401K | 3.2M | 0.1250 | 15.00G | 26.761 us | 26.761 us | 26.761 us | memory |
+| ResNet101 | Apple M4 | layer3.0.conv1 | Conv2d | 205.5M | 2.9M | 70.0782 | 4.60T | 44.678 us | 24.439 us | 44.678 us | compute |
+| ResNet101 | Apple M4 | layer3.0.bn1 | BatchNorm | 401K | 1.6M | 0.2497 | 29.96G | 13.397 us | 13.397 us | 13.397 us | memory |
+| ResNet101 | Apple M4 | layer3.0.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.0.conv2 | Conv2d | 231.2M | 3.4M | 68.7552 | 4.60T | 50.263 us | 28.023 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.0.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.0.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.0.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.0.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.0.downsample.0 | Conv2d | 205.5M | 4.5M | 45.6145 | 4.60T | 44.678 us | 37.547 us | 44.678 us | compute |
+| ResNet101 | Apple M4 | layer3.0.downsample.1 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.0.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.1.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.1.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.1.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.1.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.1.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.1.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.1.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.1.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.1.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.2.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.2.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.2.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.2.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.2.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.2.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.2.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.2.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.2.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.3.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.3.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.3.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.3.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.3.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.3.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.3.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.3.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.3.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.4.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.4.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.4.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.4.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.4.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.4.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.4.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.4.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.4.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.5.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.5.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.5.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.5.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.5.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.5.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.5.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.5.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.5.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.6.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.6.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.6.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.6.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.6.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.6.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.6.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.6.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.6.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.7.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.7.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.7.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.7.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.7.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.7.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.7.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.7.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.7.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.8.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.8.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.8.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.8.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.8.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.8.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.8.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.8.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.8.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.9.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.9.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.9.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.9.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.9.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.9.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.9.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.9.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.9.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.10.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.10.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.10.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.10.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.10.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.10.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.10.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.10.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.10.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.11.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.11.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.11.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.11.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.11.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.11.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.11.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.11.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.11.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.12.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.12.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.12.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.12.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.12.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.12.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.12.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.12.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.12.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.13.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.13.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.13.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.13.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.13.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.13.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.13.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.13.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.13.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.14.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.14.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.14.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.14.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.14.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.14.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.14.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.14.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.14.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.15.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.15.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.15.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.15.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.15.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.15.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.15.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.15.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.15.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.16.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.16.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.16.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.16.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.16.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.16.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.16.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.16.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.16.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.17.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.17.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.17.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.17.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.17.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.17.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.17.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.17.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.17.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.18.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.18.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.18.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.18.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.18.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.18.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.18.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.18.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.18.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.19.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.19.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.19.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.19.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.19.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.19.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.19.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.19.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.19.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.20.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.20.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.20.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.20.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.20.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.20.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.20.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.20.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.20.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.21.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.21.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.21.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.21.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.21.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.21.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.21.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.21.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.21.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.22.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.22.bn1 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.22.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.22.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 4.60T | 50.263 us | 23.006 us | 50.263 us | compute |
+| ResNet101 | Apple M4 | layer3.22.bn2 | BatchNorm | 100K | 403K | 0.2487 | 29.85G | 3.362 us | 3.362 us | 3.362 us | memory |
+| ResNet101 | Apple M4 | layer3.22.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer3.22.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 4.60T | 22.339 us | 17.101 us | 22.339 us | compute |
+| ResNet101 | Apple M4 | layer3.22.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 29.85G | 13.449 us | 13.449 us | 13.449 us | memory |
+| ResNet101 | Apple M4 | layer3.22.relu | ReLU | 201K | 1.6M | 0.1250 | 15.00G | 13.380 us | 13.380 us | 13.380 us | memory |
+| ResNet101 | Apple M4 | layer4.0.conv1 | Conv2d | 205.5M | 3.3M | 62.2531 | 4.60T | 44.678 us | 27.511 us | 44.678 us | compute |
+| ResNet101 | Apple M4 | layer4.0.bn1 | BatchNorm | 201K | 807K | 0.2487 | 29.85G | 6.724 us | 6.724 us | 6.724 us | memory |
+| ResNet101 | Apple M4 | layer4.0.relu | ReLU | 100K | 803K | 0.1250 | 15.00G | 6.690 us | 6.690 us | 6.690 us | memory |
+| ResNet101 | Apple M4 | layer4.0.conv2 | Conv2d | 231.2M | 9.9M | 23.2631 | 2.79T | 82.825 us | 82.825 us | 82.825 us | memory |
+| ResNet101 | Apple M4 | layer4.0.bn2 | BatchNorm | 50K | 205K | 0.2450 | 29.40G | 1.707 us | 1.707 us | 1.707 us | memory |
+| ResNet101 | Apple M4 | layer4.0.relu | ReLU | 100K | 803K | 0.1250 | 15.00G | 6.690 us | 6.690 us | 6.690 us | memory |
+| ResNet101 | Apple M4 | layer4.0.conv3 | Conv2d | 102.8M | 4.7M | 21.8823 | 2.63T | 39.134 us | 39.134 us | 39.134 us | memory |
+| ResNet101 | Apple M4 | layer4.0.bn3 | BatchNorm | 201K | 819K | 0.2450 | 29.40G | 6.827 us | 6.827 us | 6.827 us | memory |
+| ResNet101 | Apple M4 | layer4.0.downsample.0 | Conv2d | 205.5M | 9.6M | 21.4244 | 2.57T | 79.940 us | 79.940 us | 79.940 us | memory |
+| ResNet101 | Apple M4 | layer4.0.downsample.1 | BatchNorm | 201K | 819K | 0.2450 | 29.40G | 6.827 us | 6.827 us | 6.827 us | memory |
+| ResNet101 | Apple M4 | layer4.0.relu | ReLU | 100K | 803K | 0.1250 | 15.00G | 6.690 us | 6.690 us | 6.690 us | memory |
+| ResNet101 | Apple M4 | layer4.1.conv1 | Conv2d | 102.8M | 4.7M | 21.8823 | 2.63T | 39.134 us | 39.134 us | 39.134 us | memory |
+| ResNet101 | Apple M4 | layer4.1.bn1 | BatchNorm | 50K | 205K | 0.2450 | 29.40G | 1.707 us | 1.707 us | 1.707 us | memory |
+| ResNet101 | Apple M4 | layer4.1.relu | ReLU | 100K | 803K | 0.1250 | 15.00G | 6.690 us | 6.690 us | 6.690 us | memory |
+| ResNet101 | Apple M4 | layer4.1.conv2 | Conv2d | 231.2M | 9.6M | 23.9898 | 2.88T | 80.316 us | 80.316 us | 80.316 us | memory |
+| ResNet101 | Apple M4 | layer4.1.bn2 | BatchNorm | 50K | 205K | 0.2450 | 29.40G | 1.707 us | 1.707 us | 1.707 us | memory |
+| ResNet101 | Apple M4 | layer4.1.relu | ReLU | 100K | 803K | 0.1250 | 15.00G | 6.690 us | 6.690 us | 6.690 us | memory |
+| ResNet101 | Apple M4 | layer4.1.conv3 | Conv2d | 102.8M | 4.7M | 21.8823 | 2.63T | 39.134 us | 39.134 us | 39.134 us | memory |
+| ResNet101 | Apple M4 | layer4.1.bn3 | BatchNorm | 201K | 819K | 0.2450 | 29.40G | 6.827 us | 6.827 us | 6.827 us | memory |
+| ResNet101 | Apple M4 | layer4.1.relu | ReLU | 100K | 803K | 0.1250 | 15.00G | 6.690 us | 6.690 us | 6.690 us | memory |
+| ResNet101 | Apple M4 | layer4.2.conv1 | Conv2d | 102.8M | 4.7M | 21.8823 | 2.63T | 39.134 us | 39.134 us | 39.134 us | memory |
+| ResNet101 | Apple M4 | layer4.2.bn1 | BatchNorm | 50K | 205K | 0.2450 | 29.40G | 1.707 us | 1.707 us | 1.707 us | memory |
+| ResNet101 | Apple M4 | layer4.2.relu | ReLU | 100K | 803K | 0.1250 | 15.00G | 6.690 us | 6.690 us | 6.690 us | memory |
+| ResNet101 | Apple M4 | layer4.2.conv2 | Conv2d | 231.2M | 9.6M | 23.9898 | 2.88T | 80.316 us | 80.316 us | 80.316 us | memory |
+| ResNet101 | Apple M4 | layer4.2.bn2 | BatchNorm | 50K | 205K | 0.2450 | 29.40G | 1.707 us | 1.707 us | 1.707 us | memory |
+| ResNet101 | Apple M4 | layer4.2.relu | ReLU | 100K | 803K | 0.1250 | 15.00G | 6.690 us | 6.690 us | 6.690 us | memory |
+| ResNet101 | Apple M4 | layer4.2.conv3 | Conv2d | 102.8M | 4.7M | 21.8823 | 2.63T | 39.134 us | 39.134 us | 39.134 us | memory |
+| ResNet101 | Apple M4 | layer4.2.bn3 | BatchNorm | 201K | 819K | 0.2450 | 29.40G | 6.827 us | 6.827 us | 6.827 us | memory |
+| ResNet101 | Apple M4 | layer4.2.relu | ReLU | 100K | 803K | 0.1250 | 15.00G | 6.690 us | 6.690 us | 6.690 us | memory |
+| ResNet101 | Apple M4 | avgpool | AdaptiveAvgPool | 2K | 410K | 0.0050 | 600.0M | 3.413 us | 3.413 us | 3.413 us | memory |
+| ResNet101 | Apple M4 | fc | Linear | 4.1M | 8.2M | 0.4991 | 59.90G | 68.402 us | 68.402 us | 68.402 us | memory |
+| ResNet101 | Arduino Nicla Vision | conv1 | Conv2d | 236.0M | 3.9M | 61.2899 | 1.92G | 122.931 ms | 250.717 us | 122.931 ms | compute |
+| ResNet101 | Arduino Nicla Vision | bn1 | BatchNorm | 1.6M | 6.4M | 0.2500 | 1.92G | 836.267 us | 418.167 us | 836.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | relu | ReLU | 803K | 6.4M | 0.1250 | 1.92G | 418.133 us | 418.133 us | 418.133 us | memory |
+| ResNet101 | Arduino Nicla Vision | maxpool | MaxPool | 803K | 4.0M | 0.2000 | 1.92G | 418.133 us | 261.333 us | 418.133 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.0.conv1 | Conv2d | 25.7M | 1.6M | 15.8384 | 1.92G | 13.380 ms | 105.600 us | 13.380 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.0.bn1 | BatchNorm | 401K | 1.6M | 0.2499 | 1.92G | 209.067 us | 104.567 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.0.relu | ReLU | 803K | 6.4M | 0.1250 | 1.92G | 418.133 us | 418.133 us | 418.133 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer1.0.conv2 | Conv2d | 231.2M | 1.8M | 131.8879 | 1.92G | 120.422 ms | 114.133 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.0.bn2 | BatchNorm | 401K | 1.6M | 0.2499 | 1.92G | 209.067 us | 104.567 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.0.relu | ReLU | 803K | 6.4M | 0.1250 | 1.92G | 418.133 us | 418.133 us | 418.133 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer1.0.conv3 | Conv2d | 102.8M | 4.1M | 25.1888 | 1.92G | 53.521 ms | 265.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.0.bn3 | BatchNorm | 1.6M | 6.4M | 0.2499 | 1.92G | 836.267 us | 418.267 us | 836.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.0.downsample.0 | Conv2d | 102.8M | 4.1M | 25.1888 | 1.92G | 53.521 ms | 265.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.0.downsample.1 | BatchNorm | 1.6M | 6.4M | 0.2499 | 1.92G | 836.267 us | 418.267 us | 836.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.0.relu | ReLU | 803K | 6.4M | 0.1250 | 1.92G | 418.133 us | 418.133 us | 418.133 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer1.1.conv1 | Conv2d | 102.8M | 4.1M | 25.1888 | 1.92G | 53.521 ms | 265.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.1.bn1 | BatchNorm | 401K | 1.6M | 0.2499 | 1.92G | 209.067 us | 104.567 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.1.relu | ReLU | 803K | 6.4M | 0.1250 | 1.92G | 418.133 us | 418.133 us | 418.133 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer1.1.conv2 | Conv2d | 231.2M | 1.8M | 131.8879 | 1.92G | 120.422 ms | 114.133 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.1.bn2 | BatchNorm | 401K | 1.6M | 0.2499 | 1.92G | 209.067 us | 104.567 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.1.relu | ReLU | 803K | 6.4M | 0.1250 | 1.92G | 418.133 us | 418.133 us | 418.133 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer1.1.conv3 | Conv2d | 102.8M | 4.1M | 25.1888 | 1.92G | 53.521 ms | 265.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.1.bn3 | BatchNorm | 1.6M | 6.4M | 0.2499 | 1.92G | 836.267 us | 418.267 us | 836.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.1.relu | ReLU | 803K | 6.4M | 0.1250 | 1.92G | 418.133 us | 418.133 us | 418.133 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer1.2.conv1 | Conv2d | 102.8M | 4.1M | 25.1888 | 1.92G | 53.521 ms | 265.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.2.bn1 | BatchNorm | 401K | 1.6M | 0.2499 | 1.92G | 209.067 us | 104.567 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.2.relu | ReLU | 803K | 6.4M | 0.1250 | 1.92G | 418.133 us | 418.133 us | 418.133 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer1.2.conv2 | Conv2d | 231.2M | 1.8M | 131.8879 | 1.92G | 120.422 ms | 114.133 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.2.bn2 | BatchNorm | 401K | 1.6M | 0.2499 | 1.92G | 209.067 us | 104.567 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.2.relu | ReLU | 803K | 6.4M | 0.1250 | 1.92G | 418.133 us | 418.133 us | 418.133 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer1.2.conv3 | Conv2d | 102.8M | 4.1M | 25.1888 | 1.92G | 53.521 ms | 265.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.2.bn3 | BatchNorm | 1.6M | 6.4M | 0.2499 | 1.92G | 836.267 us | 418.267 us | 836.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer1.2.relu | ReLU | 803K | 6.4M | 0.1250 | 1.92G | 418.133 us | 418.133 us | 418.133 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer2.0.conv1 | Conv2d | 205.5M | 4.9M | 41.5364 | 1.92G | 107.042 ms | 322.133 us | 107.042 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.0.bn1 | BatchNorm | 803K | 3.2M | 0.2499 | 1.92G | 418.133 us | 209.133 us | 418.133 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.0.relu | ReLU | 401K | 3.2M | 0.1250 | 1.92G | 209.067 us | 209.067 us | 209.067 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer2.0.conv2 | Conv2d | 231.2M | 2.6M | 89.0347 | 1.92G | 120.422 ms | 169.067 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.0.bn2 | BatchNorm | 201K | 804K | 0.2497 | 1.92G | 104.533 us | 52.333 us | 104.533 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.0.relu | ReLU | 401K | 3.2M | 0.1250 | 1.92G | 209.067 us | 209.067 us | 209.067 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer2.0.conv3 | Conv2d | 102.8M | 2.3M | 45.2852 | 1.92G | 53.521 ms | 147.733 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.0.bn3 | BatchNorm | 803K | 3.2M | 0.2497 | 1.92G | 418.133 us | 209.333 us | 418.133 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.0.downsample.0 | Conv2d | 205.5M | 5.3M | 38.4785 | 1.92G | 107.042 ms | 347.733 us | 107.042 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.0.downsample.1 | BatchNorm | 803K | 3.2M | 0.2497 | 1.92G | 418.133 us | 209.333 us | 418.133 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.0.relu | ReLU | 401K | 3.2M | 0.1250 | 1.92G | 209.067 us | 209.067 us | 209.067 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer2.1.conv1 | Conv2d | 102.8M | 2.3M | 45.2852 | 1.92G | 53.521 ms | 147.733 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.1.bn1 | BatchNorm | 201K | 804K | 0.2497 | 1.92G | 104.533 us | 52.333 us | 104.533 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.1.relu | ReLU | 401K | 3.2M | 0.1250 | 1.92G | 209.067 us | 209.067 us | 209.067 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer2.1.conv2 | Conv2d | 231.2M | 1.4M | 166.0235 | 1.92G | 120.422 ms | 90.667 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.1.bn2 | BatchNorm | 201K | 804K | 0.2497 | 1.92G | 104.533 us | 52.333 us | 104.533 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.1.relu | ReLU | 401K | 3.2M | 0.1250 | 1.92G | 209.067 us | 209.067 us | 209.067 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer2.1.conv3 | Conv2d | 102.8M | 2.3M | 45.2852 | 1.92G | 53.521 ms | 147.733 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.1.bn3 | BatchNorm | 803K | 3.2M | 0.2497 | 1.92G | 418.133 us | 209.333 us | 418.133 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.1.relu | ReLU | 401K | 3.2M | 0.1250 | 1.92G | 209.067 us | 209.067 us | 209.067 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer2.2.conv1 | Conv2d | 102.8M | 2.3M | 45.2852 | 1.92G | 53.521 ms | 147.733 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.2.bn1 | BatchNorm | 201K | 804K | 0.2497 | 1.92G | 104.533 us | 52.333 us | 104.533 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.2.relu | ReLU | 401K | 3.2M | 0.1250 | 1.92G | 209.067 us | 209.067 us | 209.067 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer2.2.conv2 | Conv2d | 231.2M | 1.4M | 166.0235 | 1.92G | 120.422 ms | 90.667 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.2.bn2 | BatchNorm | 201K | 804K | 0.2497 | 1.92G | 104.533 us | 52.333 us | 104.533 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.2.relu | ReLU | 401K | 3.2M | 0.1250 | 1.92G | 209.067 us | 209.067 us | 209.067 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer2.2.conv3 | Conv2d | 102.8M | 2.3M | 45.2852 | 1.92G | 53.521 ms | 147.733 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.2.bn3 | BatchNorm | 803K | 3.2M | 0.2497 | 1.92G | 418.133 us | 209.333 us | 418.133 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.2.relu | ReLU | 401K | 3.2M | 0.1250 | 1.92G | 209.067 us | 209.067 us | 209.067 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer2.3.conv1 | Conv2d | 102.8M | 2.3M | 45.2852 | 1.92G | 53.521 ms | 147.733 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.3.bn1 | BatchNorm | 201K | 804K | 0.2497 | 1.92G | 104.533 us | 52.333 us | 104.533 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.3.relu | ReLU | 401K | 3.2M | 0.1250 | 1.92G | 209.067 us | 209.067 us | 209.067 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer2.3.conv2 | Conv2d | 231.2M | 1.4M | 166.0235 | 1.92G | 120.422 ms | 90.667 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.3.bn2 | BatchNorm | 201K | 804K | 0.2497 | 1.92G | 104.533 us | 52.333 us | 104.533 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.3.relu | ReLU | 401K | 3.2M | 0.1250 | 1.92G | 209.067 us | 209.067 us | 209.067 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer2.3.conv3 | Conv2d | 102.8M | 2.3M | 45.2852 | 1.92G | 53.521 ms | 147.733 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.3.bn3 | BatchNorm | 803K | 3.2M | 0.2497 | 1.92G | 418.133 us | 209.333 us | 418.133 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer2.3.relu | ReLU | 401K | 3.2M | 0.1250 | 1.92G | 209.067 us | 209.067 us | 209.067 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.0.conv1 | Conv2d | 205.5M | 2.9M | 70.0782 | 1.92G | 107.042 ms | 190.933 us | 107.042 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.0.bn1 | BatchNorm | 401K | 1.6M | 0.2497 | 1.92G | 209.067 us | 104.667 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.0.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.0.conv2 | Conv2d | 231.2M | 3.4M | 68.7552 | 1.92G | 120.422 ms | 218.933 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.0.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.0.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.0.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.0.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.0.downsample.0 | Conv2d | 205.5M | 4.5M | 45.6145 | 1.92G | 107.042 ms | 293.333 us | 107.042 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.0.downsample.1 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.0.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.1.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.1.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.1.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.1.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.1.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.1.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.1.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.1.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.1.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.2.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.2.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.2.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.2.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.2.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.2.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.2.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.2.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.2.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.3.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.3.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.3.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.3.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.3.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.3.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.3.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.3.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.3.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.4.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.4.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.4.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.4.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.4.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.4.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.4.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.4.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.4.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.5.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.5.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.5.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.5.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.5.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.5.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.5.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.5.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.5.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.6.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.6.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.6.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.6.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.6.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.6.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.6.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.6.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.6.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.7.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.7.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.7.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.7.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.7.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.7.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.7.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.7.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.7.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.8.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.8.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.8.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.8.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.8.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.8.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.8.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.8.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.8.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.9.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.9.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.9.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.9.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.9.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.9.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.9.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.9.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.9.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.10.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.10.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.10.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.10.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.10.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.10.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.10.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.10.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.10.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.11.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.11.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.11.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.11.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.11.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.11.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.11.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.11.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.11.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.12.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.12.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.12.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.12.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.12.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.12.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.12.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.12.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.12.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.13.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.13.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.13.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.13.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.13.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.13.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.13.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.13.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.13.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.14.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.14.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.14.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.14.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.14.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.14.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.14.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.14.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.14.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.15.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.15.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.15.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.15.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.15.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.15.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.15.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.15.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.15.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.16.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.16.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.16.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.16.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.16.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.16.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.16.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.16.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.16.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.17.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.17.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.17.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.17.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.17.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.17.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.17.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.17.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.17.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.18.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.18.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.18.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.18.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.18.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.18.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.18.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.18.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.18.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.19.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.19.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.19.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.19.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.19.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.19.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.19.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.19.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.19.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.20.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.20.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.20.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.20.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.20.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.20.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.20.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.20.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.20.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.21.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.21.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.21.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.21.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.21.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.21.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.21.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.21.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.21.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.22.conv1 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.22.bn1 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.22.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.22.conv2 | Conv2d | 231.2M | 2.8M | 83.7507 | 1.92G | 120.422 ms | 179.733 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.22.bn2 | BatchNorm | 100K | 403K | 0.2487 | 1.92G | 52.267 us | 26.267 us | 52.267 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.22.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer3.22.conv3 | Conv2d | 102.8M | 2.1M | 50.0758 | 1.92G | 53.521 ms | 133.600 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.22.bn3 | BatchNorm | 401K | 1.6M | 0.2487 | 1.92G | 209.067 us | 105.067 us | 209.067 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer3.22.relu | ReLU | 201K | 1.6M | 0.1250 | 1.92G | 104.533 us | 104.533 us | 104.533 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer4.0.conv1 | Conv2d | 205.5M | 3.3M | 62.2531 | 1.92G | 107.042 ms | 214.933 us | 107.042 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.0.bn1 | BatchNorm | 201K | 807K | 0.2487 | 1.92G | 104.533 us | 52.533 us | 104.533 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.0.relu | ReLU | 100K | 803K | 0.1250 | 1.92G | 52.267 us | 52.267 us | 52.267 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer4.0.conv2 | Conv2d | 231.2M | 9.9M | 23.2631 | 1.92G | 120.422 ms | 647.067 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.0.bn2 | BatchNorm | 50K | 205K | 0.2450 | 1.92G | 26.133 us | 13.333 us | 26.133 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.0.relu | ReLU | 100K | 803K | 0.1250 | 1.92G | 52.267 us | 52.267 us | 52.267 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer4.0.conv3 | Conv2d | 102.8M | 4.7M | 21.8823 | 1.92G | 53.521 ms | 305.733 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.0.bn3 | BatchNorm | 201K | 819K | 0.2450 | 1.92G | 104.533 us | 53.333 us | 104.533 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.0.downsample.0 | Conv2d | 205.5M | 9.6M | 21.4244 | 1.92G | 107.042 ms | 624.533 us | 107.042 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.0.downsample.1 | BatchNorm | 201K | 819K | 0.2450 | 1.92G | 104.533 us | 53.333 us | 104.533 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.0.relu | ReLU | 100K | 803K | 0.1250 | 1.92G | 52.267 us | 52.267 us | 52.267 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer4.1.conv1 | Conv2d | 102.8M | 4.7M | 21.8823 | 1.92G | 53.521 ms | 305.733 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.1.bn1 | BatchNorm | 50K | 205K | 0.2450 | 1.92G | 26.133 us | 13.333 us | 26.133 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.1.relu | ReLU | 100K | 803K | 0.1250 | 1.92G | 52.267 us | 52.267 us | 52.267 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer4.1.conv2 | Conv2d | 231.2M | 9.6M | 23.9898 | 1.92G | 120.422 ms | 627.467 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.1.bn2 | BatchNorm | 50K | 205K | 0.2450 | 1.92G | 26.133 us | 13.333 us | 26.133 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.1.relu | ReLU | 100K | 803K | 0.1250 | 1.92G | 52.267 us | 52.267 us | 52.267 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer4.1.conv3 | Conv2d | 102.8M | 4.7M | 21.8823 | 1.92G | 53.521 ms | 305.733 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.1.bn3 | BatchNorm | 201K | 819K | 0.2450 | 1.92G | 104.533 us | 53.333 us | 104.533 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.1.relu | ReLU | 100K | 803K | 0.1250 | 1.92G | 52.267 us | 52.267 us | 52.267 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer4.2.conv1 | Conv2d | 102.8M | 4.7M | 21.8823 | 1.92G | 53.521 ms | 305.733 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.2.bn1 | BatchNorm | 50K | 205K | 0.2450 | 1.92G | 26.133 us | 13.333 us | 26.133 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.2.relu | ReLU | 100K | 803K | 0.1250 | 1.92G | 52.267 us | 52.267 us | 52.267 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer4.2.conv2 | Conv2d | 231.2M | 9.6M | 23.9898 | 1.92G | 120.422 ms | 627.467 us | 120.422 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.2.bn2 | BatchNorm | 50K | 205K | 0.2450 | 1.92G | 26.133 us | 13.333 us | 26.133 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.2.relu | ReLU | 100K | 803K | 0.1250 | 1.92G | 52.267 us | 52.267 us | 52.267 us | memory |
+| ResNet101 | Arduino Nicla Vision | layer4.2.conv3 | Conv2d | 102.8M | 4.7M | 21.8823 | 1.92G | 53.521 ms | 305.733 us | 53.521 ms | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.2.bn3 | BatchNorm | 201K | 819K | 0.2450 | 1.92G | 104.533 us | 53.333 us | 104.533 us | compute |
+| ResNet101 | Arduino Nicla Vision | layer4.2.relu | ReLU | 100K | 803K | 0.1250 | 1.92G | 52.267 us | 52.267 us | 52.267 us | memory |
+| ResNet101 | Arduino Nicla Vision | avgpool | AdaptiveAvgPool | 2K | 410K | 0.0050 | 76.8M | 26.667 us | 26.667 us | 26.667 us | memory |
+| ResNet101 | Arduino Nicla Vision | fc | Linear | 4.1M | 8.2M | 0.4991 | 1.92G | 2.134 ms | 534.388 us | 2.134 ms | compute |
+| VGG16 | Raspberry Pi 4 | features.0 | Conv2d | 176.6M | 13.5M | 13.1273 | 48.00G | 3.680 ms | 525.560 us | 3.680 ms | compute |
+| VGG16 | Raspberry Pi 4 | features.1 | ReLU | 3.2M | 25.7M | 0.1250 | 3.20G | 1.004 ms | 1.004 ms | 1.004 ms | memory |
+| VGG16 | Raspberry Pi 4 | features.2 | Conv2d | 3.70G | 25.8M | 143.3011 | 48.00G | 77.137 ms | 1.009 ms | 77.137 ms | compute |
+| VGG16 | Raspberry Pi 4 | features.3 | ReLU | 3.2M | 25.7M | 0.1250 | 3.20G | 1.004 ms | 1.004 ms | 1.004 ms | memory |
+| VGG16 | Raspberry Pi 4 | features.4 | MaxPool | 3.2M | 16.1M | 0.2000 | 5.12G | 627.200 us | 627.200 us | 627.200 us | memory |
+| VGG16 | Raspberry Pi 4 | features.5 | Conv2d | 1.85G | 9.9M | 186.4491 | 48.00G | 38.569 ms | 387.860 us | 38.569 ms | compute |
+| VGG16 | Raspberry Pi 4 | features.6 | ReLU | 1.6M | 12.8M | 0.1250 | 3.20G | 501.760 us | 501.760 us | 501.760 us | memory |
+| VGG16 | Raspberry Pi 4 | features.7 | Conv2d | 3.70G | 13.4M | 275.4651 | 48.00G | 77.104 ms | 524.820 us | 77.104 ms | compute |
+| VGG16 | Raspberry Pi 4 | features.8 | ReLU | 1.6M | 12.8M | 0.1250 | 3.20G | 501.760 us | 501.760 us | 501.760 us | memory |
+| VGG16 | Raspberry Pi 4 | features.9 | MaxPool | 1.6M | 8.0M | 0.2000 | 5.12G | 313.600 us | 313.600 us | 313.600 us | memory |
+| VGG16 | Raspberry Pi 4 | features.10 | Conv2d | 1.85G | 6.0M | 308.5402 | 48.00G | 38.552 ms | 234.280 us | 38.552 ms | compute |
+| VGG16 | Raspberry Pi 4 | features.11 | ReLU | 803K | 6.4M | 0.1250 | 3.20G | 250.880 us | 250.880 us | 250.880 us | memory |
+| VGG16 | Raspberry Pi 4 | features.12 | Conv2d | 3.70G | 8.8M | 421.2960 | 48.00G | 77.087 ms | 343.080 us | 77.087 ms | compute |
+| VGG16 | Raspberry Pi 4 | features.13 | ReLU | 803K | 6.4M | 0.1250 | 3.20G | 250.880 us | 250.880 us | 250.880 us | memory |
+| VGG16 | Raspberry Pi 4 | features.14 | Conv2d | 3.70G | 8.8M | 421.2960 | 48.00G | 77.087 ms | 343.080 us | 77.087 ms | compute |
+| VGG16 | Raspberry Pi 4 | features.15 | ReLU | 803K | 6.4M | 0.1250 | 3.20G | 250.880 us | 250.880 us | 250.880 us | memory |
+| VGG16 | Raspberry Pi 4 | features.16 | MaxPool | 803K | 4.0M | 0.2000 | 5.12G | 156.800 us | 156.800 us | 156.800 us | memory |
+| VGG16 | Raspberry Pi 4 | features.17 | Conv2d | 1.85G | 7.1M | 259.5128 | 48.00G | 38.544 ms | 278.480 us | 38.544 ms | compute |
+| VGG16 | Raspberry Pi 4 | features.18 | ReLU | 401K | 3.2M | 0.1250 | 3.20G | 125.440 us | 125.440 us | 125.440 us | memory |
+| VGG16 | Raspberry Pi 4 | features.19 | Conv2d | 3.70G | 12.7M | 292.4611 | 48.00G | 77.079 ms | 494.160 us | 77.079 ms | compute |
+| VGG16 | Raspberry Pi 4 | features.20 | ReLU | 401K | 3.2M | 0.1250 | 3.20G | 125.440 us | 125.440 us | 125.440 us | memory |
+| VGG16 | Raspberry Pi 4 | features.21 | Conv2d | 3.70G | 12.7M | 292.4611 | 48.00G | 77.079 ms | 494.160 us | 77.079 ms | compute |
+| VGG16 | Raspberry Pi 4 | features.22 | ReLU | 401K | 3.2M | 0.1250 | 3.20G | 125.440 us | 125.440 us | 125.440 us | memory |
+| VGG16 | Raspberry Pi 4 | features.23 | MaxPool | 401K | 2.0M | 0.2000 | 5.12G | 78.400 us | 78.400 us | 78.400 us | memory |
+| VGG16 | Raspberry Pi 4 | features.24 | Conv2d | 924.9M | 10.2M | 90.3085 | 48.00G | 19.270 ms | 400.080 us | 19.270 ms | compute |
+| VGG16 | Raspberry Pi 4 | features.25 | ReLU | 100K | 803K | 0.1250 | 3.20G | 31.360 us | 31.360 us | 31.360 us | memory |
+| VGG16 | Raspberry Pi 4 | features.26 | Conv2d | 924.9M | 10.2M | 90.3085 | 48.00G | 19.270 ms | 400.080 us | 19.270 ms | compute |
+| VGG16 | Raspberry Pi 4 | features.27 | ReLU | 100K | 803K | 0.1250 | 3.20G | 31.360 us | 31.360 us | 31.360 us | memory |
+| VGG16 | Raspberry Pi 4 | features.28 | Conv2d | 924.9M | 10.2M | 90.3085 | 48.00G | 19.270 ms | 400.080 us | 19.270 ms | compute |
+| VGG16 | Raspberry Pi 4 | features.29 | ReLU | 100K | 803K | 0.1250 | 3.20G | 31.360 us | 31.360 us | 31.360 us | memory |
+| VGG16 | Raspberry Pi 4 | features.30 | MaxPool | 100K | 502K | 0.2000 | 5.12G | 19.600 us | 19.600 us | 19.600 us | memory |
+| VGG16 | Raspberry Pi 4 | avgpool | AdaptiveAvgPool | 25K | 201K | 0.1250 | 3.20G | 7.840 us | 7.840 us | 7.840 us | memory |
+| VGG16 | Raspberry Pi 4 | classifier.0 | Linear | 205.5M | 411.2M | 0.4998 | 12.80G | 16.062 ms | 16.062 ms | 16.062 ms | memory |
+| VGG16 | Raspberry Pi 4 | classifier.1 | ReLU | 4K | 33K | 0.1250 | 3.20G | 1.280 us | 1.280 us | 1.280 us | memory |
+| VGG16 | Raspberry Pi 4 | classifier.2 | Dropout | 0 | 33K | 0.0000 | 0 | 0 s | 1.280 us | 1.280 us | memory |
+| VGG16 | Raspberry Pi 4 | classifier.3 | Linear | 33.6M | 67.2M | 0.4997 | 12.79G | 2.623 ms | 2.623 ms | 2.623 ms | memory |
+| VGG16 | Raspberry Pi 4 | classifier.4 | ReLU | 4K | 33K | 0.1250 | 3.20G | 1.280 us | 1.280 us | 1.280 us | memory |
+| VGG16 | Raspberry Pi 4 | classifier.5 | Dropout | 0 | 33K | 0.0000 | 0 | 0 s | 1.280 us | 1.280 us | memory |
+| VGG16 | Raspberry Pi 4 | classifier.6 | Linear | 8.2M | 16.4M | 0.4993 | 12.78G | 640.952 us | 640.952 us | 640.952 us | memory |
+| VGG16 | Raspberry Pi 5 | features.0 | Conv2d | 176.6M | 13.5M | 13.1273 | 38.40G | 4.599 ms | 262.780 us | 4.599 ms | compute |
+| VGG16 | Raspberry Pi 5 | features.1 | ReLU | 3.2M | 25.7M | 0.1250 | 6.40G | 501.760 us | 501.760 us | 501.760 us | memory |
+| VGG16 | Raspberry Pi 5 | features.2 | Conv2d | 3.70G | 25.8M | 143.3011 | 38.40G | 96.422 ms | 504.645 us | 96.422 ms | compute |
+| VGG16 | Raspberry Pi 5 | features.3 | ReLU | 3.2M | 25.7M | 0.1250 | 6.40G | 501.760 us | 501.760 us | 501.760 us | memory |
+| VGG16 | Raspberry Pi 5 | features.4 | MaxPool | 3.2M | 16.1M | 0.2000 | 10.24G | 313.600 us | 313.600 us | 313.600 us | memory |
+| VGG16 | Raspberry Pi 5 | features.5 | Conv2d | 1.85G | 9.9M | 186.4491 | 38.40G | 48.211 ms | 193.930 us | 48.211 ms | compute |
+| VGG16 | Raspberry Pi 5 | features.6 | ReLU | 1.6M | 12.8M | 0.1250 | 6.40G | 250.880 us | 250.880 us | 250.880 us | memory |
+| VGG16 | Raspberry Pi 5 | features.7 | Conv2d | 3.70G | 13.4M | 275.4651 | 38.40G | 96.380 ms | 262.410 us | 96.380 ms | compute |
+| VGG16 | Raspberry Pi 5 | features.8 | ReLU | 1.6M | 12.8M | 0.1250 | 6.40G | 250.880 us | 250.880 us | 250.880 us | memory |
+| VGG16 | Raspberry Pi 5 | features.9 | MaxPool | 1.6M | 8.0M | 0.2000 | 10.24G | 156.800 us | 156.800 us | 156.800 us | memory |
+| VGG16 | Raspberry Pi 5 | features.10 | Conv2d | 1.85G | 6.0M | 308.5402 | 38.40G | 48.190 ms | 117.140 us | 48.190 ms | compute |
+| VGG16 | Raspberry Pi 5 | features.11 | ReLU | 803K | 6.4M | 0.1250 | 6.40G | 125.440 us | 125.440 us | 125.440 us | memory |
+| VGG16 | Raspberry Pi 5 | features.12 | Conv2d | 3.70G | 8.8M | 421.2960 | 38.40G | 96.359 ms | 171.540 us | 96.359 ms | compute |
+| VGG16 | Raspberry Pi 5 | features.13 | ReLU | 803K | 6.4M | 0.1250 | 6.40G | 125.440 us | 125.440 us | 125.440 us | memory |
+| VGG16 | Raspberry Pi 5 | features.14 | Conv2d | 3.70G | 8.8M | 421.2960 | 38.40G | 96.359 ms | 171.540 us | 96.359 ms | compute |
+| VGG16 | Raspberry Pi 5 | features.15 | ReLU | 803K | 6.4M | 0.1250 | 6.40G | 125.440 us | 125.440 us | 125.440 us | memory |
+| VGG16 | Raspberry Pi 5 | features.16 | MaxPool | 803K | 4.0M | 0.2000 | 10.24G | 78.400 us | 78.400 us | 78.400 us | memory |
+| VGG16 | Raspberry Pi 5 | features.17 | Conv2d | 1.85G | 7.1M | 259.5128 | 38.40G | 48.179 ms | 139.240 us | 48.179 ms | compute |
+| VGG16 | Raspberry Pi 5 | features.18 | ReLU | 401K | 3.2M | 0.1250 | 6.40G | 62.720 us | 62.720 us | 62.720 us | memory |
+| VGG16 | Raspberry Pi 5 | features.19 | Conv2d | 3.70G | 12.7M | 292.4611 | 38.40G | 96.348 ms | 247.080 us | 96.348 ms | compute |
+| VGG16 | Raspberry Pi 5 | features.20 | ReLU | 401K | 3.2M | 0.1250 | 6.40G | 62.720 us | 62.720 us | 62.720 us | memory |
+| VGG16 | Raspberry Pi 5 | features.21 | Conv2d | 3.70G | 12.7M | 292.4611 | 38.40G | 96.348 ms | 247.080 us | 96.348 ms | compute |
+| VGG16 | Raspberry Pi 5 | features.22 | ReLU | 401K | 3.2M | 0.1250 | 6.40G | 62.720 us | 62.720 us | 62.720 us | memory |
+| VGG16 | Raspberry Pi 5 | features.23 | MaxPool | 401K | 2.0M | 0.2000 | 10.24G | 39.200 us | 39.200 us | 39.200 us | memory |
+| VGG16 | Raspberry Pi 5 | features.24 | Conv2d | 924.9M | 10.2M | 90.3085 | 38.40G | 24.087 ms | 200.040 us | 24.087 ms | compute |
+| VGG16 | Raspberry Pi 5 | features.25 | ReLU | 100K | 803K | 0.1250 | 6.40G | 15.680 us | 15.680 us | 15.680 us | memory |
+| VGG16 | Raspberry Pi 5 | features.26 | Conv2d | 924.9M | 10.2M | 90.3085 | 38.40G | 24.087 ms | 200.040 us | 24.087 ms | compute |
+| VGG16 | Raspberry Pi 5 | features.27 | ReLU | 100K | 803K | 0.1250 | 6.40G | 15.680 us | 15.680 us | 15.680 us | memory |
+| VGG16 | Raspberry Pi 5 | features.28 | Conv2d | 924.9M | 10.2M | 90.3085 | 38.40G | 24.087 ms | 200.040 us | 24.087 ms | compute |
+| VGG16 | Raspberry Pi 5 | features.29 | ReLU | 100K | 803K | 0.1250 | 6.40G | 15.680 us | 15.680 us | 15.680 us | memory |
+| VGG16 | Raspberry Pi 5 | features.30 | MaxPool | 100K | 502K | 0.2000 | 10.24G | 9.800 us | 9.800 us | 9.800 us | memory |
+| VGG16 | Raspberry Pi 5 | avgpool | AdaptiveAvgPool | 25K | 201K | 0.1250 | 6.40G | 3.920 us | 3.920 us | 3.920 us | memory |
+| VGG16 | Raspberry Pi 5 | classifier.0 | Linear | 205.5M | 411.2M | 0.4998 | 25.59G | 8.031 ms | 8.031 ms | 8.031 ms | memory |
+| VGG16 | Raspberry Pi 5 | classifier.1 | ReLU | 4K | 33K | 0.1250 | 6.40G | 640.00 ns | 640.00 ns | 640.00 ns | memory |
+| VGG16 | Raspberry Pi 5 | classifier.2 | Dropout | 0 | 33K | 0.0000 | 0 | 0 s | 640.00 ns | 640.00 ns | memory |
+| VGG16 | Raspberry Pi 5 | classifier.3 | Linear | 33.6M | 67.2M | 0.4997 | 25.58G | 1.312 ms | 1.312 ms | 1.312 ms | memory |
+| VGG16 | Raspberry Pi 5 | classifier.4 | ReLU | 4K | 33K | 0.1250 | 6.40G | 640.00 ns | 640.00 ns | 640.00 ns | memory |
+| VGG16 | Raspberry Pi 5 | classifier.5 | Dropout | 0 | 33K | 0.0000 | 0 | 0 s | 640.00 ns | 640.00 ns | memory |
+| VGG16 | Raspberry Pi 5 | classifier.6 | Linear | 8.2M | 16.4M | 0.4993 | 25.57G | 320.476 us | 320.476 us | 320.476 us | memory |
+| VGG16 | Apple M4 | features.0 | Conv2d | 176.6M | 13.5M | 13.1273 | 1.58T | 112.119 us | 112.119 us | 112.119 us | memory |
+| VGG16 | Apple M4 | features.1 | ReLU | 3.2M | 25.7M | 0.1250 | 15.00G | 214.084 us | 214.084 us | 214.084 us | memory |
+| VGG16 | Apple M4 | features.2 | Conv2d | 3.70G | 25.8M | 143.3011 | 4.60T | 804.910 us | 215.315 us | 804.910 us | compute |
+| VGG16 | Apple M4 | features.3 | ReLU | 3.2M | 25.7M | 0.1250 | 15.00G | 214.084 us | 214.084 us | 214.084 us | memory |
+| VGG16 | Apple M4 | features.4 | MaxPool | 3.2M | 16.1M | 0.2000 | 24.00G | 133.803 us | 133.803 us | 133.803 us | memory |
+| VGG16 | Apple M4 | features.5 | Conv2d | 1.85G | 9.9M | 186.4491 | 4.60T | 402.455 us | 82.743 us | 402.455 us | compute |
+| VGG16 | Apple M4 | features.6 | ReLU | 1.6M | 12.8M | 0.1250 | 15.00G | 107.042 us | 107.042 us | 107.042 us | memory |
+| VGG16 | Apple M4 | features.7 | Conv2d | 3.70G | 13.4M | 275.4651 | 4.60T | 804.561 us | 111.962 us | 804.561 us | compute |
+| VGG16 | Apple M4 | features.8 | ReLU | 1.6M | 12.8M | 0.1250 | 15.00G | 107.042 us | 107.042 us | 107.042 us | memory |
+| VGG16 | Apple M4 | features.9 | MaxPool | 1.6M | 8.0M | 0.2000 | 24.00G | 66.901 us | 66.901 us | 66.901 us | memory |
+| VGG16 | Apple M4 | features.10 | Conv2d | 1.85G | 6.0M | 308.5402 | 4.60T | 402.281 us | 49.980 us | 402.281 us | compute |
+| VGG16 | Apple M4 | features.11 | ReLU | 803K | 6.4M | 0.1250 | 15.00G | 53.521 us | 53.521 us | 53.521 us | memory |
+| VGG16 | Apple M4 | features.12 | Conv2d | 3.70G | 8.8M | 421.2960 | 4.60T | 804.387 us | 73.190 us | 804.387 us | compute |
+| VGG16 | Apple M4 | features.13 | ReLU | 803K | 6.4M | 0.1250 | 15.00G | 53.521 us | 53.521 us | 53.521 us | memory |
+| VGG16 | Apple M4 | features.14 | Conv2d | 3.70G | 8.8M | 421.2960 | 4.60T | 804.387 us | 73.190 us | 804.387 us | compute |
+| VGG16 | Apple M4 | features.15 | ReLU | 803K | 6.4M | 0.1250 | 15.00G | 53.521 us | 53.521 us | 53.521 us | memory |
+| VGG16 | Apple M4 | features.16 | MaxPool | 803K | 4.0M | 0.2000 | 24.00G | 33.451 us | 33.451 us | 33.451 us | memory |
+| VGG16 | Apple M4 | features.17 | Conv2d | 1.85G | 7.1M | 259.5128 | 4.60T | 402.193 us | 59.409 us | 402.193 us | compute |
+| VGG16 | Apple M4 | features.18 | ReLU | 401K | 3.2M | 0.1250 | 15.00G | 26.761 us | 26.761 us | 26.761 us | memory |
+| VGG16 | Apple M4 | features.19 | Conv2d | 3.70G | 12.7M | 292.4611 | 4.60T | 804.299 us | 105.421 us | 804.299 us | compute |
+| VGG16 | Apple M4 | features.20 | ReLU | 401K | 3.2M | 0.1250 | 15.00G | 26.761 us | 26.761 us | 26.761 us | memory |
+| VGG16 | Apple M4 | features.21 | Conv2d | 3.70G | 12.7M | 292.4611 | 4.60T | 804.299 us | 105.421 us | 804.299 us | compute |
+| VGG16 | Apple M4 | features.22 | ReLU | 401K | 3.2M | 0.1250 | 15.00G | 26.761 us | 26.761 us | 26.761 us | memory |
+| VGG16 | Apple M4 | features.23 | MaxPool | 401K | 2.0M | 0.2000 | 24.00G | 16.725 us | 16.725 us | 16.725 us | memory |
+| VGG16 | Apple M4 | features.24 | Conv2d | 924.9M | 10.2M | 90.3085 | 4.60T | 201.075 us | 85.350 us | 201.075 us | compute |
+| VGG16 | Apple M4 | features.25 | ReLU | 100K | 803K | 0.1250 | 15.00G | 6.690 us | 6.690 us | 6.690 us | memory |
+| VGG16 | Apple M4 | features.26 | Conv2d | 924.9M | 10.2M | 90.3085 | 4.60T | 201.075 us | 85.350 us | 201.075 us | compute |
+| VGG16 | Apple M4 | features.27 | ReLU | 100K | 803K | 0.1250 | 15.00G | 6.690 us | 6.690 us | 6.690 us | memory |
+| VGG16 | Apple M4 | features.28 | Conv2d | 924.9M | 10.2M | 90.3085 | 4.60T | 201.075 us | 85.350 us | 201.075 us | compute |
+| VGG16 | Apple M4 | features.29 | ReLU | 100K | 803K | 0.1250 | 15.00G | 6.690 us | 6.690 us | 6.690 us | memory |
+| VGG16 | Apple M4 | features.30 | MaxPool | 100K | 502K | 0.2000 | 24.00G | 4.181 us | 4.181 us | 4.181 us | memory |
+| VGG16 | Apple M4 | avgpool | AdaptiveAvgPool | 25K | 201K | 0.1250 | 15.00G | 1.673 us | 1.673 us | 1.673 us | memory |
+| VGG16 | Apple M4 | classifier.0 | Linear | 205.5M | 411.2M | 0.4998 | 59.98G | 3.426 ms | 3.426 ms | 3.426 ms | memory |
+| VGG16 | Apple M4 | classifier.1 | ReLU | 4K | 33K | 0.1250 | 15.00G | 273.07 ns | 273.07 ns | 273.07 ns | memory |
+| VGG16 | Apple M4 | classifier.2 | Dropout | 0 | 33K | 0.0000 | 0 | 0 s | 273.07 ns | 273.07 ns | memory |
+| VGG16 | Apple M4 | classifier.3 | Linear | 33.6M | 67.2M | 0.4997 | 59.96G | 559.650 us | 559.650 us | 559.650 us | memory |
+| VGG16 | Apple M4 | classifier.4 | ReLU | 4K | 33K | 0.1250 | 15.00G | 273.07 ns | 273.07 ns | 273.07 ns | memory |
+| VGG16 | Apple M4 | classifier.5 | Dropout | 0 | 33K | 0.0000 | 0 | 0 s | 273.07 ns | 273.07 ns | memory |
+| VGG16 | Apple M4 | classifier.6 | Linear | 8.2M | 16.4M | 0.4993 | 59.92G | 136.737 us | 136.737 us | 136.737 us | memory |
+| VGG16 | Arduino Nicla Vision | features.0 | Conv2d | 176.6M | 13.5M | 13.1273 | 1.92G | 91.989 ms | 875.933 us | 91.989 ms | compute |
+| VGG16 | Arduino Nicla Vision | features.1 | ReLU | 3.2M | 25.7M | 0.1250 | 1.92G | 1.673 ms | 1.673 ms | 1.673 ms | memory |
+| VGG16 | Arduino Nicla Vision | features.2 | Conv2d | 3.70G | 25.8M | 143.3011 | 1.92G | 1.928 s | 1.682 ms | 1.928 s | compute |
+| VGG16 | Arduino Nicla Vision | features.3 | ReLU | 3.2M | 25.7M | 0.1250 | 1.92G | 1.673 ms | 1.673 ms | 1.673 ms | memory |
+| VGG16 | Arduino Nicla Vision | features.4 | MaxPool | 3.2M | 16.1M | 0.2000 | 1.92G | 1.673 ms | 1.045 ms | 1.673 ms | compute |
+| VGG16 | Arduino Nicla Vision | features.5 | Conv2d | 1.85G | 9.9M | 186.4491 | 1.92G | 964.215 ms | 646.433 us | 964.215 ms | compute |
+| VGG16 | Arduino Nicla Vision | features.6 | ReLU | 1.6M | 12.8M | 0.1250 | 1.92G | 836.267 us | 836.267 us | 836.267 us | memory |
+| VGG16 | Arduino Nicla Vision | features.7 | Conv2d | 3.70G | 13.4M | 275.4651 | 1.92G | 1.928 s | 874.700 us | 1.928 s | compute |
+| VGG16 | Arduino Nicla Vision | features.8 | ReLU | 1.6M | 12.8M | 0.1250 | 1.92G | 836.267 us | 836.267 us | 836.267 us | memory |
+| VGG16 | Arduino Nicla Vision | features.9 | MaxPool | 1.6M | 8.0M | 0.2000 | 1.92G | 836.267 us | 522.667 us | 836.267 us | compute |
+| VGG16 | Arduino Nicla Vision | features.10 | Conv2d | 1.85G | 6.0M | 308.5402 | 1.92G | 963.797 ms | 390.467 us | 963.797 ms | compute |
+| VGG16 | Arduino Nicla Vision | features.11 | ReLU | 803K | 6.4M | 0.1250 | 1.92G | 418.133 us | 418.133 us | 418.133 us | memory |
+| VGG16 | Arduino Nicla Vision | features.12 | Conv2d | 3.70G | 8.8M | 421.2960 | 1.92G | 1.927 s | 571.800 us | 1.927 s | compute |
+| VGG16 | Arduino Nicla Vision | features.13 | ReLU | 803K | 6.4M | 0.1250 | 1.92G | 418.133 us | 418.133 us | 418.133 us | memory |
+| VGG16 | Arduino Nicla Vision | features.14 | Conv2d | 3.70G | 8.8M | 421.2960 | 1.92G | 1.927 s | 571.800 us | 1.927 s | compute |
+| VGG16 | Arduino Nicla Vision | features.15 | ReLU | 803K | 6.4M | 0.1250 | 1.92G | 418.133 us | 418.133 us | 418.133 us | memory |
+| VGG16 | Arduino Nicla Vision | features.16 | MaxPool | 803K | 4.0M | 0.2000 | 1.92G | 418.133 us | 261.333 us | 418.133 us | compute |
+| VGG16 | Arduino Nicla Vision | features.17 | Conv2d | 1.85G | 7.1M | 259.5128 | 1.92G | 963.588 ms | 464.133 us | 963.588 ms | compute |
+| VGG16 | Arduino Nicla Vision | features.18 | ReLU | 401K | 3.2M | 0.1250 | 1.92G | 209.067 us | 209.067 us | 209.067 us | memory |
+| VGG16 | Arduino Nicla Vision | features.19 | Conv2d | 3.70G | 12.7M | 292.4611 | 1.92G | 1.927 s | 823.600 us | 1.927 s | compute |
+| VGG16 | Arduino Nicla Vision | features.20 | ReLU | 401K | 3.2M | 0.1250 | 1.92G | 209.067 us | 209.067 us | 209.067 us | memory |
+| VGG16 | Arduino Nicla Vision | features.21 | Conv2d | 3.70G | 12.7M | 292.4611 | 1.92G | 1.927 s | 823.600 us | 1.927 s | compute |
+| VGG16 | Arduino Nicla Vision | features.22 | ReLU | 401K | 3.2M | 0.1250 | 1.92G | 209.067 us | 209.067 us | 209.067 us | memory |
+| VGG16 | Arduino Nicla Vision | features.23 | MaxPool | 401K | 2.0M | 0.2000 | 1.92G | 209.067 us | 130.667 us | 209.067 us | compute |
+| VGG16 | Arduino Nicla Vision | features.24 | Conv2d | 924.9M | 10.2M | 90.3085 | 1.92G | 481.742 ms | 666.800 us | 481.742 ms | compute |
+| VGG16 | Arduino Nicla Vision | features.25 | ReLU | 100K | 803K | 0.1250 | 1.92G | 52.267 us | 52.267 us | 52.267 us | memory |
+| VGG16 | Arduino Nicla Vision | features.26 | Conv2d | 924.9M | 10.2M | 90.3085 | 1.92G | 481.742 ms | 666.800 us | 481.742 ms | compute |
+| VGG16 | Arduino Nicla Vision | features.27 | ReLU | 100K | 803K | 0.1250 | 1.92G | 52.267 us | 52.267 us | 52.267 us | memory |
+| VGG16 | Arduino Nicla Vision | features.28 | Conv2d | 924.9M | 10.2M | 90.3085 | 1.92G | 481.742 ms | 666.800 us | 481.742 ms | compute |
+| VGG16 | Arduino Nicla Vision | features.29 | ReLU | 100K | 803K | 0.1250 | 1.92G | 52.267 us | 52.267 us | 52.267 us | memory |
+| VGG16 | Arduino Nicla Vision | features.30 | MaxPool | 100K | 502K | 0.2000 | 1.92G | 52.267 us | 32.667 us | 52.267 us | compute |
+| VGG16 | Arduino Nicla Vision | avgpool | AdaptiveAvgPool | 25K | 201K | 0.1250 | 1.92G | 13.067 us | 13.067 us | 13.067 us | memory |
+| VGG16 | Arduino Nicla Vision | classifier.0 | Linear | 205.5M | 411.2M | 0.4998 | 1.92G | 107.044 ms | 26.769 ms | 107.044 ms | compute |
+| VGG16 | Arduino Nicla Vision | classifier.1 | ReLU | 4K | 33K | 0.1250 | 1.92G | 2.133 us | 2.133 us | 2.133 us | memory |
+| VGG16 | Arduino Nicla Vision | classifier.2 | Dropout | 0 | 33K | 0.0000 | 0 | 0 s | 2.133 us | 2.133 us | memory |
+| VGG16 | Arduino Nicla Vision | classifier.3 | Linear | 33.6M | 67.2M | 0.4997 | 1.92G | 17.478 ms | 4.372 ms | 17.478 ms | compute |
+| VGG16 | Arduino Nicla Vision | classifier.4 | ReLU | 4K | 33K | 0.1250 | 1.92G | 2.133 us | 2.133 us | 2.133 us | memory |
+| VGG16 | Arduino Nicla Vision | classifier.5 | Dropout | 0 | 33K | 0.0000 | 0 | 0 s | 2.133 us | 2.133 us | memory |
+| VGG16 | Arduino Nicla Vision | classifier.6 | Linear | 8.2M | 16.4M | 0.4993 | 1.92G | 4.267 ms | 1.068 ms | 4.267 ms | compute |
+

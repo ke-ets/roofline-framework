@@ -266,6 +266,67 @@ See `examples/energy_efficiency_multi_model.py` for a full demo (4 models × 4 h
 
 ---
 
+## Timing Analysis
+
+Extends roofline analysis with layer-wise theoretical timing across multiple models and hardware targets. For every layer the framework derives three time quantities that reveal whether execution is bottlenecked by compute or memory, then overlays them on the roofline chart.
+
+### How it works
+
+```
+Y         = min(peak_flops[dtype], AI × peak_mem_bw)   # attainable performance
+T_compute = FLOPs / peak_flops[dtype]                   # ideal compute time
+T_memory  = bytes  / peak_mem_bw                        # ideal memory time
+T_actual  = max(T_compute, T_memory)                    # bottleneck-determined time
+```
+
+A compute-bound layer has `T_compute > T_memory`; a memory-bound layer has `T_memory > T_compute`. `T_actual` is the binding constraint: the minimum theoretical time the layer can take given the hardware limits.
+
+### What it produces
+
+Running `examples/time_analysis_demo.py` analyses **AlexNet, MobileNetV2, ResNet101, VGG16** against **Raspberry Pi 4, Raspberry Pi 5, Apple M4, and Arduino Nicla Vision** in `float32` inference mode and writes three sets of plots plus four report files.
+
+**Plot sets**
+
+| Set | Files | Contents |
+|---|---|---|
+| Set 1 | `time_set1_alexnet.png`, `time_set1_mobilenetv2.png`, `time_set1_resnet101.png`, `time_set1_vgg16.png` | Per-model dual-axis plot with all 4 HW overlaid. Left Y = attainable performance (FLOPs/s, solid roofline curves). Right Y = T_actual per layer (log seconds, scatter dots). Top-10 unique layer types shown; dots are numbered and a monospace legend table in the lower-right names each layer with its FLOPs count. |
+| Set 2 | `time_set2_aggregate.png` | All models x all HW on one chart. Left Y = 4 HW roofline curves. Right Y = model-aggregate T_actual dots; marker shape encodes model, line/dot colour encodes HW. Dot size scales with log(total FLOPs). |
+| Set 3 | `time_set3_{hw}_{model}.png` (16 files) | Per-(model, HW) layerwise bar chart. Left Y = roofline curve + attainable-perf dots for selected layers. Right Y = adjacent blue (T_memory) and orange (T_compute) bar pairs per layer, with a dashed horizontal line marking T_actual. Layer names are printed vertically below the x-axis. Top-5 instances per layer type are shown, ordered left-to-right from memory-bound to compute-bound. |
+
+**Report files**
+
+| File | Format | Contents |
+|---|---|---|
+| `time_analysis_report.txt` | Plain text | ASCII tables: model summary, top-10 layer summary, full layer detail |
+| `time_analysis_report.md` | Markdown | Same three tables in Markdown format |
+| `time_analysis_report.html` | HTML | Same tables with heat-map colouring on the T_actual column (green = fast, red = slow) |
+| `time_report_model_summary.csv` | CSV | One row per (model, HW) with T_compute, T_memory, T_actual, bottleneck |
+| `time_report_top10_layers.csv` | CSV | Top-10 unique layer types per model with T_actual for each HW side-by-side |
+| `time_report_layer_detail.csv` | CSV | Full per-layer detail for every (model, HW) combination |
+
+### Required packages
+
+Beyond the core dependencies, `torchvision` is required:
+
+```bash
+pip install torchvision
+```
+
+### How to run
+
+```bash
+cd roofline-framework
+python examples/time_analysis_demo.py
+```
+
+All 21 PNG plots and the 6 report files are written to the current working directory.
+
+### Reading the results
+
+In the Set 3 bar charts, layers dominated by a tall blue bar are **memory-bound** — the bottleneck is bandwidth, not arithmetic throughput. Layers with a tall orange bar are **compute-bound** — the processor's FLOPs ceiling is the constraint. The dashed T_actual line sits at the top of whichever bar is taller, making the binding bottleneck immediately visible. In the Set 1 and Set 2 scatter plots, dots positioned on the rising (left) slope of a roofline curve are memory-bound; dots on the flat (right) ceiling are compute-bound.
+
+---
+
 ## Extending with Custom FLOPs Handlers
 
 ```python

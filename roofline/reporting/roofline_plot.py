@@ -914,7 +914,7 @@ def plot_model_across_hw_energy(
     figsize=(15, 8),
     save_path=None,
     show=True,
-    annotate_top_n=6,
+    annotate_top_n=10,
     log_scale=True,
 ):
     """Dual-axis roofline + energy-efficiency chart for one model across multiple hardware targets.
@@ -929,6 +929,7 @@ def plot_model_across_hw_energy(
     try:
         import matplotlib.pyplot as plt
         import matplotlib.lines as mlines
+        import matplotlib.patches as mpatches
     except ImportError as e:
         raise ImportError("matplotlib is required: pip install matplotlib") from e
 
@@ -949,6 +950,24 @@ def plot_model_across_hw_energy(
     cmap = plt.get_cmap("tab10")
     hw_markers = ["o", "s", "^", "D", "P", "X"]
 
+    # One representative per unique layer type (highest FLOPs for that type),
+    # then take up to annotate_top_n types sorted by FLOPs descending.
+    # This ensures all layer types are visible rather than duplicating the same type.
+    ref_all = [l for l in results_list[0].layers
+               if l.layer.layer_type != "Unknown" and l.flops > 0]
+    type_rep: dict = {}
+    for l in ref_all:
+        lt = l.layer.layer_type
+        if lt not in type_rep or l.flops > type_rep[lt].flops:
+            type_rep[lt] = l
+    top10 = sorted(type_rep.values(), key=lambda l: l.flops, reverse=True)[:annotate_top_n]
+    top10_names = {l.layer.name for l in top10}
+
+    # Reference-HW (index 0) layer data captured during loop for annotation
+    ref_known: list = []
+    ref_ai_vals: list = []
+    ref_eff_vals: list = []
+
     for idx, result in enumerate(results_list):
         hw = result.hw
         hw_color = cmap(idx % 10)
@@ -966,21 +985,66 @@ def plot_model_across_hw_energy(
         ax_right.plot(x_curve, y_eff, color=hw_color, linewidth=2.0,
                       linestyle="--", zorder=5)
 
-        # Per-layer scatter on left axis
+        # Per-layer scatter: right axis only, top-10 layers by FLOPs, shape=HW fill=layer-type
         known = [l for l in result.layers
-                 if l.layer.layer_type != "Unknown" and l.flops > 0]
+                 if l.layer.layer_type != "Unknown"
+                 and l.flops > 0
+                 and l.layer.name in top10_names]
         if known:
-            ai_vals   = [max(l.arithmetic_intensity, 1e-3) for l in known]
-            perf_vals = [max(l.attainable_perf, 1.0) for l in known]
+            ai_vals    = [max(l.arithmetic_intensity, 1e-3) for l in known]
+            eff_vals   = [max(l.energy_efficiency, 1.0) for l in known]
             dot_colors = [_TYPE_COLORS.get(l.layer.layer_type, _DEFAULT_COLOR) for l in known]
-            ax_left.scatter(ai_vals, perf_vals, c=dot_colors, marker=marker,
-                            s=45, alpha=0.5, edgecolors=hw_color,
-                            linewidths=1.0, zorder=11)
+            ax_right.scatter(ai_vals, eff_vals, marker=marker, c=dot_colors,
+                             s=90, alpha=0.88, edgecolors="white", linewidths=0.5, zorder=12)
 
-            # Per-layer energy efficiency scatter on right axis (diamond markers)
-            eff_vals = [max(l.energy_efficiency, 1.0) for l in known]
-            ax_right.scatter(ai_vals, eff_vals, marker="D", c=[hw_color] * len(known),
-                             s=30, alpha=0.8, edgecolors="none", zorder=12)
+            # Capture reference-HW data (first HW only)
+            if idx == 0:
+                ref_known = known
+                ref_ai_vals = ai_vals
+                ref_eff_vals = eff_vals
+
+    # ---- Number labels on dots + legend table (reference HW = index 0) ----
+    if annotate_top_n > 0 and ref_known:
+        flop_vals = [l.flops for l in ref_known]
+        sort_idx = sorted(range(len(ref_known)), key=lambda i: flop_vals[i], reverse=True)
+        top_idx = sort_idx[:annotate_top_n]
+
+        legend_lines: list = []
+        for rank, i in enumerate(top_idx):
+            num = rank + 1
+            ai  = ref_ai_vals[i]
+            eff  = ref_eff_vals[i]
+            # White bold number on the right-axis efficiency dot (reference HW only)
+            ax_right.text(
+                ai, eff, str(num),
+                ha="center", va="center",
+                fontsize=7, fontweight="bold", color="white",
+                zorder=25,
+            )
+            raw_name = ref_known[i].layer.name
+            short = raw_name.split("/")[-1]
+            short = short[:38] + "\u2026" if len(short) > 38 else short
+            layer_type = ref_known[i].layer.layer_type
+            flops_str = _fmt_flops_plain(flop_vals[i])
+            legend_lines.append(f"{num:>2}. [{layer_type}]  {short}  ({flops_str})")
+
+        if legend_lines:
+            legend_text = "Top layers by FLOPs:\n" + "\n".join(legend_lines)
+            ax_left.text(
+                0.99, 0.02, legend_text,
+                transform=ax_left.transAxes,
+                fontsize=7,
+                verticalalignment="bottom",
+                horizontalalignment="right",
+                family="monospace",
+                bbox=dict(
+                    boxstyle="round,pad=0.5",
+                    facecolor="white",
+                    edgecolor="#cccccc",
+                    alpha=0.92,
+                ),
+                zorder=20,
+            )
 
     if log_scale:
         ax_left.set_xscale("log")
@@ -1009,27 +1073,46 @@ def plot_model_across_hw_energy(
 
     ax_left.grid(True, which="both", linestyle="--", alpha=0.35)
 
-    # Legend 1 (upper left): HW entries
+    # Legend 1 (upper left): HW entries (shape-only dot) + linestyle key
     hw_handles = [
         mlines.Line2D([], [], color=cmap(idx % 10),
                       marker=hw_markers[idx % len(hw_markers)],
-                      markersize=7, linewidth=2.0,
+                      markersize=7, linestyle="None",
                       label=result.hw.name)
         for idx, result in enumerate(results_list)
+    ]
+    hw_handles += [
+        mlines.Line2D([], [], color="black", linewidth=1.8, linestyle="-",
+                      label="solid = Perf (left)"),
+        mlines.Line2D([], [], color="black", linewidth=1.8, linestyle="--",
+                      label="dashed = FLOPS/J (right)"),
     ]
     hw_legend = ax_left.legend(handles=hw_handles, loc="upper left", fontsize=9,
                                 framealpha=0.88, title="Hardware")
     ax_left.add_artist(hw_legend)
 
-    # Legend 2 (lower right): linestyle key
-    style_handles = [
-        mlines.Line2D([], [], color="black", linewidth=2.0, linestyle="-",
-                      label="Perf (left axis)"),
-        mlines.Line2D([], [], color="black", linewidth=2.0, linestyle="--",
-                      label="FLOPS/J (right axis)"),
+    # Legend 2 (lower left): layer-type color legend
+    all_layer_types = sorted({
+        l.layer.layer_type
+        for result in results_list
+        for l in result.layers
+        if l.layer.layer_type != "Unknown" and l.flops > 0
+    })
+    type_handles = [
+        mpatches.Patch(color=_TYPE_COLORS.get(lt, _DEFAULT_COLOR), label=lt)
+        for lt in all_layer_types
     ]
-    ax_left.legend(handles=style_handles, loc="lower right", fontsize=9,
-                   framealpha=0.88, title="Axis key")
+    if type_handles:
+        ax_left.legend(
+            handles=type_handles,
+            loc="lower left",
+            fontsize=7,
+            framealpha=0.88,
+            title="Layer types (dot fill)",
+            title_fontsize=7,
+            ncol=max(1, len(type_handles) // 6 + 1),
+        )
+    # (Legend table text box drawn above at axes coords (0.99, 0.02))
 
     plt.tight_layout()
 
@@ -1126,13 +1209,8 @@ def plot_multi_model_multi_hw_energy(
 
             # Right axis: energy efficiency aggregate dot
             ax_right.scatter([ai], [agg_eff], marker=m_marker, c=[color],
-                             s=dot_size, edgecolors="white", linewidths=1.2,
+                             s=dot_size, edgecolors="white", linewidths=0.8,
                              zorder=13, alpha=0.92)
-
-            # Left axis: attainable perf aggregate dot (lower alpha)
-            ax_left.scatter([ai], [attainable], marker=m_marker, c=[color],
-                            s=dot_size, edgecolors="white", linewidths=1.2,
-                            zorder=12, alpha=0.5)
 
         if model_name not in annotated_models:
             annotated_models.add(model_name)
